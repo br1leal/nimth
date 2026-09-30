@@ -1,0 +1,124 @@
+/* Nimbo — ficha de cadastro do paciente.
+   Duas telas em pilha: intro com os personagens e o form com a escolha da emoção. */
+:root{
+  --bg:#FAF8F4; --card:rgba(255,255,255,.78); --card-line:rgba(255,255,255,.95); --field:#FFFFFF; --line:#E8E3DA;
+  --ink:#17151C; --ink-2:#5E5A63; --ink-3:#9A958F; --btn:#16141C; --btn-ink:#fff;
+  --brand:#A67AFF; --brand-deep:#5500FF; --brand-soft:#E4D9FD; --brand-ink:#4A1FD1;
+  --e1:#ECE8F4; --e2:#C7BFDD; --e3:#4E4766; --limb:#1E1830; --shadow:rgba(30,24,48,.14); --desk:#EFEBE4; --bezel:#17151C;
+  --font:var(--font-inter),-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --serif:var(--font-young-serif),"Iowan Old Style",Georgia,serif;
+  --mono:var(--font-plex-mono),ui-monospace,Menlo,monospace;
+  --hand:var(--font-caveat),"Segoe Print","Bradley Hand",cursive;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#111016; --card:rgba(38,35,48,.72); --card-line:rgba(255,255,255,.08); --field:#1B1922; --line:#2C2936;
+  --ink:#F4F3F7; --ink-2:#AAA6B4; --ink-3:#76727F; --btn:#F4F3F7; --btn-ink:#16141C; --brand-soft:#2E2448; --brand-ink:#C7B0FF; --limb:#DCD7EA; --shadow:rgba(0,0,0,.45); --desk:#09080C; --bezel:#2A2733; color-scheme:dark; } }
+:root[data-theme="dark"]{
+  --bg:#111016; --card:rgba(38,35,48,.72); --card-line:rgba(255,255,255,.08); --field:#1B1922; --line:#2C2936;
+  --ink:#F4F3F7; --ink-2:#AAA6B4; --ink-3:#76727F; --btn:#F4F3F7; --btn-ink:#16141C; --brand-soft:#2E2448; --brand-ink:#C7B0FF; --limb:#DCD7EA; --shadow:rgba(0,0,0,.45); --desk:#09080C; --bezel:#2A2733; color-scheme:dark; }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); font-weight:400; letter-spacing:-.012em; -webkit-font-smoothing:antialiased; overflow:hidden}
+:focus-visible{outline:2.5px solid var(--brand); outline-offset:3px}
+button{font:inherit; color:inherit}
+
+/* personagem */
+.char{position:absolute; user-select:none; -webkit-user-select:none; touch-action:none; will-change:transform}
+.char img{display:block; width:100%; height:auto; pointer-events:none; -webkit-user-drag:none}
+.char svg{position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none}
+.char svg.limbs{z-index:0}
+.char img{position:relative; z-index:1}
+.char svg.face{z-index:2}
+.chip .char{position:relative}
+.char .body{transform-origin:50% 100%}
+
+/* intro */
+.screen{position:fixed; inset:0; overflow:hidden; transition:transform .7s cubic-bezier(.7,0,.2,1), opacity .6s}
+#intro{background:radial-gradient(80% 55% at 50% 42%, color-mix(in oklab, var(--brand-soft) 28%, var(--bg)), var(--bg) 72%); cursor:pointer}
+#intro.out{transform:translateY(-8%); opacity:0; pointer-events:none}
+#stage{position:absolute; inset:0}
+.copy{position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); text-align:center; padding-inline:24px; pointer-events:none; display:grid; gap:10px; justify-items:center}
+.copy small{font-family:var(--mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3)}
+.copy h1{margin:0; font-family:var(--serif); font-weight:400; font-size:clamp(36px,9.5cqw,64px); letter-spacing:-.025em; line-height:1.08; text-wrap:balance; max-width:13ch}
+.copy .tag{font-weight:400; font-size:14px; padding:8px 14px; border-radius:999px; background:var(--card); border:1px solid var(--card-line); color:var(--ink-2); margin-top:8px}
+.tap{margin-top:14px; text-align:center; font-family:var(--hand); font-weight:500; font-size:22px; letter-spacing:0; color:var(--ink-2); transform:rotate(-2deg); pointer-events:none; animation:breath 2.6s ease-in-out infinite}
+@keyframes breath{0%,100%{opacity:.45}50%{opacity:1}}
+
+/* form */
+#form{transform:translateY(6%); opacity:0; pointer-events:none; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  background:radial-gradient(120% 45% at 50% 0%, color-mix(in oklab, var(--e1) 80%, var(--bg)), var(--bg) 70%); transition:transform .7s cubic-bezier(.2,.8,.2,1) .15s, opacity .5s .15s, background 1s}
+#form.in{transform:none; opacity:1; pointer-events:auto}
+.inner{max-width:520px; margin:0 auto; padding-inline:20px; padding-block:calc(18px + env(safe-area-inset-top,0px)) 48px; display:grid; gap:16px}
+.top{display:flex; justify-content:space-between; align-items:center}
+.back{border:0; background:var(--card); border:1px solid var(--card-line); border-radius:999px; height:40px; padding:0 16px; font-size:13px; cursor:pointer}
+.pill{font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; padding:9px 14px; border-radius:999px; background:var(--brand-soft); color:var(--brand-ink)}
+.q{margin:0; font-family:var(--serif); font-weight:400; font-size:clamp(28px,8cqw,40px); letter-spacing:-.012em; line-height:1.14}
+.hero{position:relative; height:min(64cqw,300px)}
+.hero .char{left:50%; top:50%; transform:translate(-50%,-50%); cursor:pointer}
+.hero .glow{position:absolute; left:50%; top:52%; width:min(80cqw,360px); aspect-ratio:1; transform:translate(-50%,-50%); border-radius:50%; background:radial-gradient(circle, var(--e2), transparent 65%); opacity:.55; filter:blur(10px); transition:background 1s}
+.feel{text-align:center; display:grid; gap:2px}
+.feel b{font-family:var(--serif); font-weight:400; font-size:30px; letter-spacing:-.015em}
+.feel small{color:var(--ink-3); font-size:15px}
+.chips{display:flex; gap:6px; justify-content:safe center; overflow-x:auto; overflow-y:hidden; padding:14px 6px 18px; margin:0 -6px; scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto; width:60px; height:74px; border-radius:999px; position:relative; border:1px solid var(--card-line); background:var(--card); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0; overflow:visible;
+  transition:width .4s cubic-bezier(.3,.8,.3,1), margin .4s cubic-bezier(.3,.8,.3,1), opacity .3s, transform .35s cubic-bezier(.34,1.56,.64,1), border-width .3s}
+.chip:hover{transform:translateY(-4px)}
+.chip:active{transform:scale(.94)}
+.chip.gone{width:0; margin-inline:-4px; opacity:0; transform:scale(.4); border-width:0; pointer-events:none}
+.chip .slot{width:50px; height:50px; display:flex; align-items:center; justify-content:center}
+.chips-hint{text-align:center; font-size:13px; font-weight:300; color:var(--ink-3); margin-top:-10px}
+/* bolhas de motivos */
+.motivos{display:grid; gap:6px}
+.motivos h3{margin:0; font-family:var(--serif); font-weight:400; font-size:26px; letter-spacing:-.012em; line-height:1.18}
+.motivos p{margin:0; font-size:14px; color:var(--ink-3)}
+.bubbles{position:relative; width:100%; max-width:380px; margin:10px auto 0; aspect-ratio:100/112}
+.bubble{position:absolute; aspect-ratio:1; border-radius:50%; border:1px solid var(--card-line); cursor:pointer; display:flex; align-items:center; justify-content:center; text-align:center; padding:10px; font-family:var(--serif); font-size:15px; font-weight:400; letter-spacing:-.01em; line-height:1.15; color:var(--ink);
+  background:radial-gradient(circle at 32% 26%, rgba(255,255,255,.95), var(--card) 55%, color-mix(in oklab, var(--e1) 40%, var(--card)));
+  box-shadow:inset 0 -8px 18px -10px color-mix(in oklab, var(--e3) 25%, transparent), 0 10px 26px -18px color-mix(in oklab, var(--e3) 50%, transparent);
+  animation:pop .55s cubic-bezier(.34,1.56,.64,1) both, drift 6s ease-in-out infinite; transition:background .35s, transform .3s}
+.bubble:hover{filter:brightness(1.03)}
+.bubble[aria-pressed="true"]{background:radial-gradient(circle at 32% 26%, #fff 0%, var(--e1) 32%, var(--e2) 100%); color:#17151C}
+.bubble .ck{position:absolute; left:50%; bottom:9%; width:26px; height:26px; margin-left:-13px; border-radius:50%; background:var(--e3); display:grid; place-items:center; transform:scale(0); transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.bubble[aria-pressed="true"] .ck{transform:scale(1)}
+.bubble .ck svg{width:14px; height:14px}
+@keyframes pop{from{opacity:0; transform:scale(.4)} to{opacity:1; transform:scale(1)}}
+@keyframes drift{0%,100%{translate:0 0} 50%{translate:0 -5px}}
+.intens{display:grid; gap:10px; border-radius:22px; padding:14px 16px; background:var(--card); border:1px solid var(--card-line)}
+.intens label{font-size:14px; display:flex; justify-content:space-between}
+.intens label span{color:var(--ink-3); font-family:var(--hand); font-size:19px; line-height:1}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:8px; border-radius:999px; background:linear-gradient(90deg, var(--e1), var(--e2)); outline-offset:6px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:26px; height:26px; border-radius:50%; background:#fff; border:0; box-shadow:0 2px 10px rgba(22,20,28,.25), inset 0 0 0 7px var(--e2); cursor:grab}
+input[type=range]::-moz-range-thumb{width:26px; height:26px; border-radius:50%; background:#fff; border:0; box-shadow:0 2px 10px rgba(22,20,28,.25), inset 0 0 0 7px var(--e2); cursor:grab}
+.scale{display:flex; justify-content:space-between; font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3)}
+.skip{justify-self:center; background:none; border:0; color:var(--ink-2); font-size:13px; text-decoration:underline; text-underline-offset:3px; cursor:pointer}
+.card{border-radius:32px; padding:22px 18px; display:grid; gap:14px; background:var(--card); border:1px solid var(--card-line)}
+.card h3{margin:0; font-family:var(--serif); font-weight:400; font-size:26px; letter-spacing:-.012em}
+.field{display:grid; gap:6px}
+.field label{font-size:13px; font-weight:500; padding-left:4px}
+.field label em{color:var(--e3); font-style:normal}
+.inp{width:100%; height:50px; border:1px solid var(--line); background:var(--field); border-radius:999px; padding:0 18px; font:inherit; font-size:15px; color:var(--ink); transition:border-color .2s, box-shadow .2s}
+.inp::placeholder{color:var(--ink-3)}
+.inp:focus{outline:none; border-color:var(--e2); box-shadow:0 0 0 4px color-mix(in oklab, var(--e2) 30%, transparent)}
+.row{display:grid; grid-template-columns:78px 1fr; gap:8px}
+.consent{display:flex; gap:10px; font-size:13px; color:var(--ink-2); align-items:flex-start; padding:0 4px}
+.consent input{accent-color:var(--brand-deep); width:18px; height:18px; margin-top:1px; flex:0 0 auto}
+.btn{border:0; border-radius:999px; height:52px; padding:0 24px; font-weight:500; font-size:15.5px; letter-spacing:-.005em; cursor:pointer; background:var(--btn); color:var(--btn-ink); transition:transform .15s}
+.btn:active{transform:scale(.98)}
+.note{margin:0; font-size:12px; color:var(--ink-3); text-align:center}
+.toast{position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom,0px)); transform:translate(-50%,20px); opacity:0; background:var(--btn); color:var(--btn-ink); padding:12px 18px; border-radius:999px; font-size:14px; z-index:60; transition:.3s; pointer-events:none; max-width:calc(100% - 32px); text-align:center}
+.toast.on{opacity:1; transform:translate(-50%,0)}
+.theme{font-family:var(--mono); letter-spacing:.06em; text-transform:uppercase; font-size:10.5px !important; position:fixed; right:14px; bottom:calc(14px + env(safe-area-inset-bottom,0px)); z-index:20; border:1px solid var(--card-line); background:var(--card); border-radius:999px; height:34px; padding:0 12px; font-size:12px; cursor:pointer}
+@media (prefers-reduced-motion: reduce){ .screen,.chip{transition:none} .tap,.bubble{animation:none} }
+
+/* moldura de celular: no computador o app aparece num aparelho; no celular ocupa a tela toda */
+.app{position:fixed; inset:0; overflow:hidden; background:var(--bg); container-type:size; transform:translateZ(0)}
+.device-note{display:none}
+@media (min-width:760px) and (min-height:620px){
+  body{background:var(--desk)}
+  .app{inset:auto; left:50%; top:calc(50% - 14px); width:390px; height:min(844px, calc(100dvh - 84px)); translate:-50% -50%; border-radius:52px;
+    box-shadow:0 0 0 11px var(--bezel), 0 0 0 12px color-mix(in oklab, var(--bezel) 70%, #fff), 0 50px 90px -30px rgba(20,14,40,.45)}
+  .device-note{display:block; position:fixed; left:0; right:0; bottom:18px; text-align:center; font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3)}
+}
