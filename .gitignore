@@ -10,3 +10,6 @@ Thumbs.db
 
 # arquivos de entrega
 *.zip
+
+.vercel
+.env*
