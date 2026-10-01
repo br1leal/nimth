@@ -24,7 +24,9 @@
 :root[data-theme="dark"]{
   --bg:#111016; --card:rgba(38,35,48,.72); --card-line:rgba(255,255,255,.08); --field:#1B1922; --line:#2C2936;
   --ink:#F4F3F7; --ink-2:#AAA6B4; --ink-3:#76727F; --btn:#F4F3F7; --btn-ink:#16141C; --brand-soft:#2E2448; --brand-ink:#C7B0FF; --limb:#DCD7EA; --shadow:rgba(0,0,0,.45); --danger:#FF8A75; --danger-soft:rgba(255,138,117,.14); --ok:#6FD39B; --gbtn-bg:rgba(28,25,34,.78); --gbtn-ink:#F4F3F7; --gbtn-line:rgba(255,255,255,.16); --gbtn-hi:rgba(255,255,255,.12); --gbtn-shadow:rgba(0,0,0,.6); --gbtn-blob:.6; --gbtn-blend:normal; color-scheme:dark; }
-*{box-sizing:border-box}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+/* iPhone: sem o retângulo cinza de toque nem menu de toque longo nos elementos interativos */
+button,.bubble,.chip,.char{-webkit-touch-callout:none; -webkit-user-select:none; user-select:none}
 [hidden]{display:none!important}
 html,body{height:100%}
 body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); font-weight:400; letter-spacing:-.012em; -webkit-font-smoothing:antialiased; overflow:hidden}
