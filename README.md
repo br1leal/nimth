@@ -14,7 +14,7 @@ npm run dev      # abre em http://localhost:3000
 
 Para testar no celular na mesma rede Wi-Fi: `npm run dev -- -H 0.0.0.0` e abra no celular `http://IP-DO-COMPUTADOR:3000`.
 
-No computador o app aparece dentro de uma moldura de celular; no celular ocupa a tela toda.
+O app é responsivo: no celular ocupa a tela toda; na web os personagens se reorganizam em paisagem e o conteúdo fica centralizado.
 
 ## Estrutura
 

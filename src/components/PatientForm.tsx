@@ -2,6 +2,9 @@
 
 import { useEffect } from "react";
 import { initNimbo } from "@/lib/nimbo/engine";
+import Logo from "@/components/Logo";
+import Icon from "@/components/Icon";
+import FichaForm from "@/components/FichaForm";
 
 /**
  * Ficha de cadastro do paciente.
@@ -16,20 +19,28 @@ export default function PatientForm() {
       <div className="app">
       <button className="theme" id="themeBtn" type="button">Tema: sistema</button>
 
-      <section className="screen" id="intro" aria-label="Boas-vindas. Toque para começar.">
-        <div id="stage" />
+      <section className="screen" id="intro" aria-label="Boas-vindas">
+        <div id="stage" aria-hidden="true" />
+        <header className="brand">
+          <Logo />
+        </header>
         <div className="copy">
-          <small>Ficha de cadastro</small>
-          <h1>Como você está chegando hoje?</h1>
-          <span className="tag">Suas emoções são bem-vindas aqui</span>
-          <div className="tap">Toque em qualquer lugar para começar</div>
+          <h1>Que bom ter você aqui.</h1>
+          <p className="sub-hand"><span>um cantinho seu,</span> <span>sem pressa e sem julgamento</span></p>
+          <button className="btn start" id="startBtn" type="button">
+            Preencher ficha de cadastro <Icon name="arrow-right" />
+          </button>
         </div>
+        <p className="hint">
+          <span className="tapdot" aria-hidden="true" />
+          Toque na tela e veja uma emoção aparecer
+        </p>
       </section>
 
       <section className="screen" id="form">
         <div className="inner">
           <div className="top">
-            <button className="back" id="back" type="button">← Voltar</button>
+            <button className="back" id="back" type="button"><Icon name="arrow-left" className="icon-sm" />Voltar</button>
             <span className="pill">Ficha de cadastro</span>
           </div>
           <h2 className="q">Escolha como você está</h2>
@@ -50,29 +61,11 @@ export default function PatientForm() {
           </div>
           <button className="skip" id="skip" type="button" hidden>Prefiro não responder</button>
 
-          <form className="card" id="ficha" noValidate>
-            <h3>Seus dados</h3>
-            <div className="field"><label htmlFor="f-nome">Nome completo <em>*</em></label><input className="inp" id="f-nome" name="nome" placeholder="Como está no documento" autoComplete="name" /></div>
-            <div className="field"><label htmlFor="f-social">Como prefere ser chamado(a)?</label><input className="inp" id="f-social" name="apelido" placeholder="Opcional" /></div>
-            <div className="field">
-              <label htmlFor="f-zap">WhatsApp <em>*</em></label>
-              <div className="row">
-                <input className="inp" id="f-ddi" name="ddi" defaultValue="+55" aria-label="Código do país" />
-                <input className="inp" id="f-zap" name="whatsapp" placeholder="(11) 90000-0000" inputMode="tel" autoComplete="tel-national" />
-              </div>
-            </div>
-            <div className="field"><label htmlFor="f-nasc">Data de nascimento <em>*</em></label><input className="inp" id="f-nasc" name="nascimento" placeholder="dd/mm/aaaa" inputMode="numeric" autoComplete="bday" /></div>
-            <div className="field"><label htmlFor="f-mail">E-mail</label><input className="inp" id="f-mail" name="email" placeholder="voce@email.com" inputMode="email" autoComplete="email" /></div>
-            <label className="consent" htmlFor="f-lgpd"><input type="checkbox" id="f-lgpd" name="lgpd" />Autorizo o uso destes dados pela minha psicóloga, apenas para o meu atendimento, conforme a LGPD.</label>
-            <button className="btn" type="submit">Enviar ficha</button>
-            <p className="note">Seus dados ficam guardados com segurança e só a sua psicóloga tem acesso.</p>
-          </form>
+          <FichaForm />
         </div>
       </section>
 
-      <div className="toast" id="toast" role="status" />
       </div>
-      <p className="device-note">Prévia em tamanho de celular · abra no celular para testar o toque</p>
     </>
   );
 }

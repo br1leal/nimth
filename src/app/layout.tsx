@@ -25,7 +25,8 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={`${youngSerif.variable} ${inter.variable} ${plexMono.variable} ${caveat.variable}`} suppressHydrationWarning>
-      <body>{children}</body>
+      {/* suppressHydrationWarning: extensões do navegador (ex.: ColorZilla) injetam atributos no body */}
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }

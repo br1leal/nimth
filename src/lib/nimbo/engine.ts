@@ -99,7 +99,7 @@ function makeChar(key, opts={}){
   }
   chars.push(c); return c;
 }
-function react(c){ c.reactT=performance.now(); }
+function react(c){ const now=performance.now(); c.reactT=now; if(c.dieAt) c.dieAt=Math.max(c.dieAt, now+c.d.react+LIFE); }
 
 /* ponteiro */
 let ptr={x:innerWidth/2, y:innerHeight*.4}, lastMove=-1e9;
@@ -110,6 +110,8 @@ window.addEventListener('pointermove', onMove, {passive:true});
 window.addEventListener('touchstart', onTouch, {passive:true});
 
 const ease=x=>x<0?0:x>1?1:x*x*(3-2*x);
+const outBack=x=>{ const k=1.9, u=x-1; return 1+(k+1)*u*u*u+k*u*u; };
+const LIFE=1700; // quanto tempo o personagem fica depois da reação (ms)
 const env=(p,a,b)=>p<0||p>1?0:Math.min(ease(p/a),1-ease((p-(1-b))/b));
 
 function frame(now){
@@ -161,9 +163,18 @@ function frame(now){
       case 'angry': jx=Math.sin(t*55)*2.4*env(p,.1,.3); grow=1+.07*env(p,.12,.3); break;
     }
     if(c.d.face.shiver&&!reduce&&!R){ if(now>c.nextShiver){ c.shiverT=now; c.nextShiver=now+3500+Math.random()*4500; } const sd=(now-c.shiverT)/420; if(sd<1) jx=Math.sin(sd*Math.PI*9)*2.2*(1-sd); }
+    // surgir e sumir (personagens que aparecem no toque da tela inicial)
+    let pop='';
+    if(c.born){
+      const age=(now-c.born)/480; let ps=age>=1?1:reduce?ease(age):outBack(age);
+      if(c.drag&&c.dieAt<now+900) c.dieAt=now+900;
+      if(!c.dieT&&now>c.dieAt) c.dieT=now;
+      if(c.dieT){ const q=(now-c.dieT)/520; if(q>=1){ c.el.remove(); chars.splice(chars.indexOf(c),1); continue; } ps*=1-ease(q)*.7; c.el.style.opacity=(1-ease(q)).toFixed(3); }
+      pop=` scale(${Math.max(0,ps).toFixed(3)})`;
+    }
     const tilt=c.look.x*(c.tilt||3)*(.4+.6*E)+extraRot;
     const sx=(1+br+squashY)*grow, sy=(1-br-squashY)*grow;
-    c.el.style.transform=`${c.baseTransform||''} translate(${(c.ox+jx+c.look.x*(c.parallax||0)*E).toFixed(1)}px, ${(c.oy+fl+hopY+c.look.y*(c.parallax||0)*.6*E).toFixed(1)}px) rotate(${a.toFixed(1)}deg) scale(${(1+st).toFixed(3)},${(1-st*.45).toFixed(3)}) rotate(${(-a+tilt).toFixed(2)}deg) scale(${sx.toFixed(4)},${sy.toFixed(4)})`;
+    c.el.style.transform=`${c.baseTransform||''}${pop} translate(${(c.ox+jx+c.look.x*(c.parallax||0)*E).toFixed(1)}px, ${(c.oy+fl+hopY+c.look.y*(c.parallax||0)*.6*E).toFixed(1)}px) rotate(${a.toFixed(1)}deg) scale(${(1+st).toFixed(3)},${(1-st*.45).toFixed(3)}) rotate(${(-a+tilt).toFixed(2)}deg) scale(${sx.toFixed(4)},${sy.toFixed(4)})`;
 
     // membros
     let aL=0,aR=0,lL=0,lR=0; const amp=reduce?0:(.3+.7*E);
@@ -197,20 +208,28 @@ function frame(now){
 
 /* INTRO */
 const stage=$('stage');
-const layout=[
-  {k:'alegria',  x:52, y:80, w:46, max:330, depth:10, tilt:4},
-  {k:'calma',    x:16, y:15, w:32, max:230, depth:6,  tilt:3},
-  {k:'ansiedade',x:84, y:17, w:32, max:230, depth:7,  tilt:3},
-  {k:'tristeza', x:11, y:64, w:30, max:220, depth:7,  tilt:3},
-  {k:'raiva',    x:89, y:62, w:22, max:180, depth:8,  tilt:4},
-  {k:'nimbo',    x:50, y:9,  w:24, max:175, depth:4,  tilt:2},
-];
-layout.forEach(L=>{
-  const c=makeChar(L.k,{parallax:L.depth, tilt:L.tilt, floatAmp:4+L.depth*.3});
-  c.el.style.width=`min(${L.w}cqw, ${L.max}px)`; c.el.style.left=L.x+'%'; c.el.style.top=L.y+'%';
-  c.baseTransform='translate(-50%,-50%)';
+/* toque em qualquer lugar: uma emoção aleatória surge no ponto tocado, reage e some */
+const MAX_SPAWN=7; let lastKey=null, bag=[];
+// sorteio sem repetir: todas as emoções aparecem antes de alguma voltar
+function nextKey(){
+  if(!bag.length){ bag=[...ORDER].sort(()=>Math.random()-.5); if(bag[0]===lastKey) bag.push(bag.shift()); }
+  return lastKey=bag.shift();
+}
+function spawn(x,y){
+  const sr=stage.getBoundingClientRect(); x-=sr.left; y-=sr.top;
+  const k=nextKey();
+  const d=CAST[k], w=Math.min(sr.width*Math.min(38,30/d.ratio)/100, 170/d.ratio), h=w*d.ratio, pad=10;
+  x=Math.min(Math.max(x, w/2+pad), sr.width-w/2-pad); y=Math.min(Math.max(y, h/2+pad), sr.height-h/2-pad);
+  const sp=document.createElement('span'); sp.className='spark'; sp.style.cssText=`left:${x}px; top:${y}px; --c:${d.c.e2}`;
+  sp.addEventListener('animationend', ()=>sp.remove()); stage.appendChild(sp);
+  const now=performance.now();
+  const c=makeChar(k,{tilt:3, floatAmp:3, parallax:3});
+  c.baseTransform='translate(-50%,-50%)'; c.el.style.width=w+'px'; c.el.style.left=x+'px'; c.el.style.top=y+'px';
+  c.born=now; c.reactT=now+160; c.dieAt=now+160+d.react+LIFE; c.energy=1;
   stage.appendChild(c.el);
-});
+  const live=chars.filter(o=>o.born&&!o.dieT);
+  if(live.length>MAX_SPAWN) live[0].dieT=now;
+}
 
 /* FORM */
 let current=null, intensity=.75;
@@ -220,7 +239,7 @@ Object.keys(CAST).forEach(k=>{ const c=makeChar(k,{tilt:3, floatAmp:4}); c.el.st
 ORDER.forEach(k=>{
   const b=document.createElement('button'); b.type='button'; b.className='chip'; b.dataset.k=k; b.setAttribute('aria-label', CAST[k].name);
   const slot=document.createElement('div'); slot.className='slot';
-  const c=makeChar(k,{static:true}); c.el.style.width=Math.round(Math.min(50, 40/CAST[k].ratio))+'px'; c.el.querySelector('.limbs').remove();
+  const c=makeChar(k,{static:true}); c.el.style.width=Math.round(Math.min(44, 35/CAST[k].ratio))+'px'; c.el.querySelector('.limbs').remove();
   const cr=c.el.querySelector('.crossed'); if(cr) cr.remove();
   slot.appendChild(c.el); b.appendChild(slot);
   b.onclick=()=>select(k); chipsEl.appendChild(b);
@@ -247,7 +266,7 @@ function renderBubbles(k){
 function select(k){
   const changed=k!==current; current=k; const d=CAST[k];
   Object.entries(heroChars).forEach(([key,c])=>{ const on=key===k; if(on&&c.el.style.display==='none') c.reactT=performance.now()-c.d.react*.6; c.el.style.display=on?'':'none'; });
-  document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('gone', b.dataset.k===k));
+  document.querySelectorAll('.chip').forEach(b=>{ const on=b.dataset.k===k; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
   $('feelName').textContent=d.name; $('feelLine').textContent=d.line;
   for(const t in d.c) root.style.setProperty('--'+t, d.c[t]);
   if(changed||!$('bubbles').children.length) renderBubbles(k);
@@ -256,14 +275,10 @@ $('intensity').oninput=(e=>{ intensity=e.target.value/100; $('intLbl').textConte
 $('skip').onclick=()=>select('nimbo');
 
 function start(){ intro.classList.add('out'); form.classList.add('in'); form.scrollTop=0; }
-intro.onclick=start;
-intro.onkeydown=e=>{ if(e.key==='Enter'||e.key===' ') start(); };
-intro.tabIndex=0;
+$('startBtn').onclick=start;
+intro.onpointerdown=e=>{ if(intro.classList.contains('out')||e.target.closest('button')) return; spawn(e.clientX, e.clientY); };
 $('back').onclick=()=>{ intro.classList.remove('out'); form.classList.remove('in'); };
 
-const toast=$('toast'); let tt;
-function say(m){ toast.textContent=m; toast.classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>toast.classList.remove('on'),2400); }
-$('ficha').onsubmit=e=>{ e.preventDefault(); say('Protótipo: nenhum dado foi enviado.'); };
 
 const themes=['sistema','claro','escuro']; let ti=0;
 try{ const v=localStorage.getItem('nimbo-theme'); if(themes.includes(v)) ti=themes.indexOf(v); }catch(e){}
@@ -274,7 +289,7 @@ select('nimbo');
 raf=requestAnimationFrame(frame);
 
 return ()=>{
-  alive=false; cancelAnimationFrame(raf); clearTimeout(tt);
+  alive=false; cancelAnimationFrame(raf);
   window.removeEventListener('pointermove', onMove);
   window.removeEventListener('touchstart', onTouch);
   ['stage','heroSlot','chips','bubbles'].forEach(id=>{ const n=$(id); if(n) n.innerHTML=''; });
