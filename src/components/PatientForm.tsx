@@ -17,7 +17,11 @@ export default function PatientForm() {
   return (
     <>
       <div className="app">
-      <button className="theme" id="themeBtn" type="button">Tema: sistema</button>
+      <button className="theme" id="themeBtn" type="button" role="switch" aria-checked="false" aria-label="Modo escuro">
+        <span className="theme-knob" aria-hidden="true" />
+        <Icon name="sun" className="icon-sm t-sun" />
+        <Icon name="moon" className="icon-sm t-moon" />
+      </button>
 
       <section className="screen boot" id="intro" aria-label="Boas-vindas">
         <div id="stage" aria-hidden="true" />

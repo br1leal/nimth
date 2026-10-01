@@ -410,10 +410,13 @@ intro.onpointerdown=e=>{ if(intro.classList.contains('out')||intro.classList.con
 $('back').onclick=()=>{ intro.classList.remove('out'); form.classList.remove('in'); };
 
 
-const themes=['sistema','claro','escuro']; let ti=0;
-try{ const v=localStorage.getItem('nimbo-theme'); if(themes.includes(v)) ti=themes.indexOf(v); }catch(e){}
-function applyTheme(){ const v=themes[ti]; if(v==='sistema') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', v==='claro'?'light':'dark'); $('themeBtn').textContent='Tema: '+v; try{ localStorage.setItem('nimbo-theme',v); }catch(e){} }
-$('themeBtn').onclick=e=>{ e.stopPropagation(); ti=(ti+1)%3; applyTheme(); }; applyTheme();
+/* tema: chave sol/lua (claro/escuro); sem escolha salva, segue o sistema */
+const darkMQ=matchMedia('(prefers-color-scheme: dark)');
+let dark=darkMQ.matches;
+try{ const v=localStorage.getItem('nimbo-theme'); if(v==='escuro') dark=true; else if(v==='claro') dark=false; }catch(e){}
+function applyTheme(save){ root.setAttribute('data-theme', dark?'dark':'light'); const b=$('themeBtn'); b.setAttribute('aria-checked', String(dark)); b.classList.toggle('is-dark', dark);
+  if(save){ try{ localStorage.setItem('nimbo-theme', dark?'escuro':'claro'); }catch(e){} } }
+$('themeBtn').onclick=e=>{ e.stopPropagation(); dark=!dark; applyTheme(true); }; applyTheme(false);
 
 select('nimbo');
 raf=requestAnimationFrame(frame);
