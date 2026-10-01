@@ -73,6 +73,8 @@ function makeChar(key, opts={}){
     grumpy:`<path d="M${cx-mw*.8} ${mouthY+r*.22} Q${cx} ${mouthY-r*.22} ${cx+mw*.8} ${mouthY+r*.22}" fill="none" stroke="${INK}" stroke-width="${sw*1.15}" stroke-linecap="round"/>`
   }[f.mouth];
   s+=`<g class="mouth" data-x="${cx}" data-y="${mouthY}">${M}</g>`;
+  // sorrisinho de despedida (usado no tchau ao rolar a página)
+  if(f.mouth!=='grin') s+=`<g class="smile" opacity="0"><path d="M${cx-mw} ${mouthY-r*.05} Q${cx} ${mouthY+r*.8} ${cx+mw} ${mouthY-r*.05}" fill="none" stroke="${INK}" stroke-width="${sw}" stroke-linecap="round"/></g>`;
   if(f.tear){
     s+=`<path class="tear-rest" d="${drop(ex[1]+r*.8, ey[1]+r*.95, r*.32)}" fill="#CFE6FF" stroke="#fff" stroke-width="${r*.06}"/>`;
     s+=`<g class="tears" opacity="0">`+[0,1].map(i=>[0,.5].map(o=>`<path data-o="${o}" d="${drop(ex[i]+(i?r*.75:-r*.75), ey[i]+r*.95, r*.3)}" fill="#CFE6FF" stroke="#fff" stroke-width="${r*.06}"/>`).join('')).join('')+`</g>`;
@@ -84,7 +86,7 @@ function makeChar(key, opts={}){
   const c={key, el, d, r, img, W, H,
     eyes:[...face.querySelectorAll('.eye')], pupils:[...face.querySelectorAll('.pupil')], lids:[...face.querySelectorAll('.lid')],
     arms:[...limbs.querySelectorAll('.arm')], legs:[...limbs.querySelectorAll('.leg')],
-    mouth:face.querySelector('.mouth'), brows:face.querySelector('.brows'), sweat:face.querySelector('.sweat'),
+    mouth:face.querySelector('.mouth'), smile:face.querySelector('.smile'), brows:face.querySelector('.brows'), sweat:face.querySelector('.sweat'),
     tears:face.querySelector('.tears'), tearRest:face.querySelector('.tear-rest'), smoke:face.querySelector('.smoke'), crossed:face.querySelector('.crossed'),
     look:{x:0,y:0}, blinkStart:-1, nextBlink:1500+Math.random()*2500, seed:Math.random()*10, phase:Math.random()*6,
     energy:.3, reactT:-1e9, shiverT:-1e9, nextShiver:3000+Math.random()*4000, shrugT:-1e9, nextShrug:2500+Math.random()*3000,
@@ -97,6 +99,11 @@ function makeChar(key, opts={}){
     el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
     el.addEventListener('click', e=>e.stopPropagation());
   }
+  // braço que acena no tchau: troca pelo desenho de braço erguido enquanto acena
+  c.armPaths=[...limbs.querySelectorAll('.arm path')];
+  if(c.armPaths[1]){ // quanto girar para a ponta da mão apontar para cima e para fora (~235° no SVG)
+    const END={up:[-1.25,-1.45], wiggle:[-1.55,-.35], droop:[-.9,1.6], mudra:[-.8,1.02], hips:[-.7,.6], shrug:[-1.45,-.4]}, [ex,ey]=END[L.arm]||[-1,0];
+    let ang=Math.atan2(ey,ex)*180/Math.PI; if(ang<0) ang+=360; let lift=238-ang; if(lift>180) lift-=360; if(lift<-180) lift+=360; c.liftR=lift; }
   chars.push(c); return c;
 }
 function react(c){ const now=performance.now(); c.reactT=now; if(c.dieAt) c.dieAt=Math.max(c.dieAt, now+c.d.react+LIFE); }
@@ -111,12 +118,14 @@ window.addEventListener('touchstart', onTouch, {passive:true});
 
 const ease=x=>x<0?0:x>1?1:x*x*(3-2*x);
 const outBack=x=>{ const k=1.9, u=x-1; return 1+(k+1)*u*u*u+k*u*u; };
+const BYE_MS=2000; // duração do tchau
 const LIFE=1700; // quanto tempo o personagem fica depois da reação (ms)
 const env=(p,a,b)=>p<0||p>1?0:Math.min(ease(p/a),1-ease((p-(1-b))/b));
 
 function frame(now){
   if(!alive) return;
   const t=now/1000, dt=1/60, idle=now-lastMove>3000;
+  stepBubbles();
   for(const c of chars){
     const rect=c.el.getBoundingClientRect(); if(rect.width===0) continue;
     const ccx=rect.left+rect.width/2, ccy=rect.top+rect.height/2;
@@ -163,6 +172,9 @@ function frame(now){
       case 'angry': jx=Math.sin(t*55)*2.4*env(p,.1,.3); grow=1+.07*env(p,.12,.3); break;
     }
     if(c.d.face.shiver&&!reduce&&!R){ if(now>c.nextShiver){ c.shiverT=now; c.nextShiver=now+3500+Math.random()*4500; } const sd=(now-c.shiverT)/420; if(sd<1) jx=Math.sin(sd*Math.PI*9)*2.2*(1-sd); }
+    // tchau: ao rolar a página, o personagem acena, sorri e sobe um pouquinho
+    let byeE=0, byeQ=-1; if(c.byeT){ byeQ=(now-c.byeT)/BYE_MS; if(byeQ<1) byeE=env(byeQ,.12,.28); else { c.byeT=0; byeQ=-1; } }
+    if(byeE) hopY-=byeE*rect.height*.1;
     // surgir e sumir (personagens que aparecem no toque da tela inicial)
     let pop='';
     if(c.born){
@@ -187,7 +199,11 @@ function frame(now){
       case 'meh': { if(now>c.nextShrug){ c.shrugT=now; c.nextShrug=now+4500+Math.random()*3500; } const sh=Math.max(env((now-c.shrugT)/1100,.3,.4), R?env(p,.25,.35):0); aL=aR=-sh*24; if(c.brows) c.brows.setAttribute('transform',`translate(0 ${(-sh*c.r*.25).toFixed(1)})`); break; }
     }
     if(c.drag){ aL-=18; aR-=18; }
-    if(c.arms[0]){ c.arms[0].setAttribute('transform',`rotate(${aL.toFixed(1)})`); c.arms[1].setAttribute('transform',`rotate(${aR.toFixed(1)})`); }
+    // tchau: o braço direito gira rápido para cima e para fora e acena
+    const scR=1;
+    if(byeE && c.liftR!=null){ const w=Math.sin((now-c.byeT)/1000*14)*22; aR=aR*(1-byeE)+(c.liftR+w)*byeE; aL=aL*(1-byeE); }
+    if(c.smile){ c.smile.setAttribute('opacity',byeE.toFixed(2)); c.mouth.setAttribute('opacity',(1-byeE).toFixed(2)); }
+    if(c.arms[0]){ c.arms[0].setAttribute('transform',`rotate(${aL.toFixed(1)})`); c.arms[1].setAttribute('transform',`rotate(${aR.toFixed(1)}) scale(${scR.toFixed(3)})`); }
     if(c.legs[0]){ c.legs[0].setAttribute('transform',`rotate(${lL.toFixed(1)})`); c.legs[1].setAttribute('transform',`rotate(${lR.toFixed(1)})`); }
 
     // boca da alegria ri
@@ -218,7 +234,7 @@ function nextKey(){
 function spawn(x,y){
   const sr=stage.getBoundingClientRect(); x-=sr.left; y-=sr.top;
   const k=nextKey();
-  const d=CAST[k], w=Math.min(sr.width*Math.min(38,30/d.ratio)/100, 170/d.ratio), h=w*d.ratio, pad=10;
+  const d=CAST[k], w=.8*Math.min(sr.width*Math.min(38,30/d.ratio)/100, 170/d.ratio), h=w*d.ratio, pad=10;
   x=Math.min(Math.max(x, w/2+pad), sr.width-w/2-pad); y=Math.min(Math.max(y, h/2+pad), sr.height-h/2-pad);
   const sp=document.createElement('span'); sp.className='spark'; sp.style.cssText=`left:${x}px; top:${y}px; --c:${d.c.e2}`;
   sp.addEventListener('animationend', ()=>sp.remove()); stage.appendChild(sp);
@@ -227,6 +243,7 @@ function spawn(x,y){
   c.baseTransform='translate(-50%,-50%)'; c.el.style.width=w+'px'; c.el.style.left=x+'px'; c.el.style.top=y+'px';
   c.born=now; c.reactT=now+160; c.dieAt=now+160+d.react+LIFE; c.energy=1;
   stage.appendChild(c.el);
+  intro.classList.add('played');
   const live=chars.filter(o=>o.born&&!o.dieT);
   if(live.length>MAX_SPAWN) live[0].dieT=now;
 }
@@ -235,7 +252,7 @@ function spawn(x,y){
 let current=null, intensity=.75;
 const heroSlot=$('heroSlot'), chipsEl=$('chips'), heroChars={};
 Object.keys(CAST).forEach(k=>{ const c=makeChar(k,{tilt:3, floatAmp:4}); c.el.style.display='none'; c.baseTransform='translate(-50%,-56%)';
-  c.el.style.width=`min(${Math.min(54,40/CAST[k].ratio).toFixed(0)}cqw, ${Math.round(215/CAST[k].ratio)}px)`; heroSlot.appendChild(c.el); heroChars[k]=c; });
+  c.el.style.width=`min(${Math.min(50,38/CAST[k].ratio).toFixed(0)}cqw, ${Math.round(210/CAST[k].ratio)}px)`; heroSlot.appendChild(c.el); heroChars[k]=c; });
 ORDER.forEach(k=>{
   const b=document.createElement('button'); b.type='button'; b.className='chip'; b.dataset.k=k; b.setAttribute('aria-label', CAST[k].name);
   const slot=document.createElement('div'); slot.className='slot';
@@ -256,27 +273,140 @@ function renderBubbles(k){
   const labels=[...REASONS[k]].sort((a,b)=>b.length-a.length);
   const pos=[...BPOS].sort((a,b)=>b[2]-a[2]);
   labels.forEach((txt,i)=>{ const [x,y,sz]=pos[i];
-    const bt=document.createElement('button'); bt.type='button'; bt.className='bubble'; bt.innerHTML=`<span>${txt}</span>`+CHECK;
+    const bt=document.createElement('button'); bt.type='button'; bt.className='bubble'; bt.innerHTML=`<span>${txt}</span>`;
     bt.style.cssText=`left:${x}%; top:${(y/112*100).toFixed(2)}%; width:${sz}%; font-size:${sz<32?13:14}px; animation-delay:${i*60}ms, ${i*.7}s`;
     bt.setAttribute('aria-pressed', picked[k].has(txt));
-    bt.onclick=()=>{ const on=!picked[k].has(txt); on?picked[k].add(txt):picked[k].delete(txt); bt.setAttribute('aria-pressed',on); };
+    bt.onclick=()=>{
+      if(bt._dragged){ bt._dragged=false; return; } // foi arraste, não toque
+      const on=!picked[k].has(txt); on?picked[k].add(txt):picked[k].delete(txt);
+      if(!on||reduce){ bt.setAttribute('aria-pressed',on); return; }
+      // estoura: gotinhas saem do centro, a bolha some e volta menor, marcada
+      const cx=bt.offsetLeft+bt.offsetWidth/2, cy=bt.offsetTop+bt.offsetHeight/2, R=bt.offsetWidth*.55;
+      for(let i=0;i<9;i++){ const a=i/9*Math.PI*2+Math.random()*.4, d=R*(.8+Math.random()*.5);
+        const dp=document.createElement('span'); dp.className='drop';
+        dp.style.cssText=`left:${cx}px; top:${cy}px; --dx:${(Math.cos(a)*d).toFixed(1)}px; --dy:${(Math.sin(a)*d).toFixed(1)}px; width:${6+Math.random()*6}px; height:auto; aspect-ratio:1`;
+        dp.addEventListener('animationend',()=>dp.remove()); box.appendChild(dp); }
+      bt.style.animation=`drift 6s ease-in-out ${i*.7}s infinite`; // sem repetir a entrada depois do estouro
+      bt.classList.add('burst');
+      setTimeout(()=>{ bt.classList.remove('burst'); bt.setAttribute('aria-pressed',true); bt.classList.add('regrow'); setTimeout(()=>bt.classList.remove('regrow'),520); },220);
+    };
     box.appendChild(bt);
+    setTimeout(()=>{ if(!bt.style.animation) bt.style.animation=`drift 6s ease-in-out ${i*.7}s infinite`; }, 700+i*60);
   });
+  initBubblePhysics(box);
+}
+
+/* bolhas arrastáveis: empurram umas às outras (colisão de círculos), ficam dentro da área e deformam de leve */
+let bub=[], bubBox=null, bubDrag=null;
+function initBubblePhysics(box){
+  bubBox=box; bubDrag=null;
+  requestAnimationFrame(()=>{
+    const W=box.clientWidth, H=box.clientHeight;
+    bub=[...box.querySelectorAll('.bubble')].map(el=>{ const r=el.offsetWidth/2;
+      const b={el, r, x:el.offsetLeft+r, y:el.offsetTop+r, vx:0, vy:0, sq:0, sa:0};
+      el.style.left='0px'; el.style.top='0px'; el.style.width=(r*2)+'px';
+      el.addEventListener('pointerdown', e=>{ bubDrag={b, id:e.pointerId, ox:e.clientX, oy:e.clientY, bx:b.x, by:b.y, moved:0, t:performance.now(), tvx:0, tvy:0}; b.vx=b.vy=0; try{ el.setPointerCapture(e.pointerId); }catch(_){} });
+      el.addEventListener('pointermove', e=>{ const d=bubDrag; if(!d||d.b!==b||e.pointerId!==d.id) return;
+        const nx=d.bx+(e.clientX-d.ox), ny=d.by+(e.clientY-d.oy); d.moved=Math.max(d.moved, Math.hypot(e.clientX-d.ox, e.clientY-d.oy));
+        const now=performance.now(), dtm=Math.max(8,now-d.t); d.t=now;
+        // velocidade do arraste (px por quadro, suavizada) para poder "jogar" a bolha
+        d.tvx=d.tvx*.6+((nx-b.x)/dtm*16)*.4; d.tvy=d.tvy*.6+((ny-b.y)/dtm*16)*.4;
+        b.x=nx; b.y=ny; });
+      const up=e=>{ const d=bubDrag; if(!d||d.b!==b) return; if(d.moved>6) b.el._dragged=true;
+        if(performance.now()-d.t<90){ const v=Math.hypot(d.tvx,d.tvy), k=v>22?22/v:1; b.vx=d.tvx*k; b.vy=d.tvy*k; } bubDrag=null; };
+      el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+      return b; });
+    placeBubbles();
+  });
+}
+function stepBubbles(){
+  if(!bub.length||!bubBox||!bubBox.isConnected) return;
+  const W=bubBox.clientWidth, H=bubBox.clientHeight, drag=bubDrag?.b;
+  if(drag){ drag.vx=bubDrag.tvx; drag.vy=bubDrag.tvy; bubDrag.tvx*=.85; bubDrag.tvy*=.85; }
+  for(const b of bub) if(b!==drag){ b.x+=b.vx; b.y+=b.vy; b.vx*=.955; b.vy*=.955; if(Math.abs(b.vx)<.02) b.vx=0; if(Math.abs(b.vy)<.02) b.vy=0; }
+  for(let it=0; it<4; it++){
+    for(let i=0;i<bub.length;i++) for(let j=i+1;j<bub.length;j++){
+      const a=bub[i], c=bub[j], dx=c.x-a.x, dy=c.y-a.y, d=Math.hypot(dx,dy)||.01, min=a.r+c.r+2;
+      if(d>=min) continue;
+      const o=min-d, nx=dx/d, ny=dy/d, wa=a===drag?0:c===drag?1:.5, wc=1-wa;
+      a.x-=nx*o*wa; a.y-=ny*o*wa; c.x+=nx*o*wc; c.y+=ny*o*wc;
+      // choque: troca de impulso na direção do contato (a arrastada empurra como se fosse pesada)
+      const rv=(a.vx-c.vx)*nx+(a.vy-c.vy)*ny;
+      if(it===0 && rv>0){ const e=.85;
+        if(a===drag){ c.vx+=nx*rv*(1+e)*.8; c.vy+=ny*rv*(1+e)*.8; }
+        else if(c===drag){ a.vx-=nx*rv*(1+e)*.8; a.vy-=ny*rv*(1+e)*.8; }
+        else { const jj=rv*(1+e)/2; a.vx-=nx*jj; a.vy-=ny*jj; c.vx+=nx*jj; c.vy+=ny*jj; }
+        const hit=Math.min(.14,rv*.025);
+        if(a!==drag){ a.sq=Math.max(a.sq,hit); a.sa=Math.atan2(ny,nx); } if(c!==drag){ c.sq=Math.max(c.sq,hit); c.sa=Math.atan2(ny,nx); } }
+      else if(it===0){ if(a!==drag){ a.sq=Math.min(.1,a.sq+o*.003); a.sa=Math.atan2(ny,nx); } if(c!==drag){ c.sq=Math.min(.1,c.sq+o*.003); c.sa=Math.atan2(ny,nx); } }
+    }
+    for(const b of bub){ // paredes: quica
+      if(b.x<b.r){ b.x=b.r; if(b.vx<0) b.vx*=-.7; } if(b.x>W-b.r){ b.x=W-b.r; if(b.vx>0) b.vx*=-.7; }
+      if(b.y<b.r){ b.y=b.r; if(b.vy<0) b.vy*=-.7; } if(b.y>H-b.r){ b.y=H-b.r; if(b.vy>0) b.vy*=-.7; } }
+  }
+  if(drag){ const v=Math.hypot(drag.vx,drag.vy); drag.sq+=(Math.min(.16,.05+v*.012)-drag.sq)*.3; if(v>.5) drag.sa=Math.atan2(drag.vy,drag.vx); }
+  for(const b of bub) if(b!==drag){ const v=Math.hypot(b.vx,b.vy); if(v>1.5){ b.sq=Math.max(b.sq,Math.min(.1,v*.008)); b.sa=Math.atan2(b.vy,b.vx); } }
+  placeBubbles();
+}
+function placeBubbles(){
+  for(const b of bub){ b.sq*=.9; const a=b.sa*180/Math.PI;
+    b.el.style.left=(b.x-b.r).toFixed(1)+'px'; b.el.style.top=(b.y-b.r).toFixed(1)+'px';
+    b.el.style.transform=b.sq>.004?`rotate(${a.toFixed(1)}deg) scale(${(1+b.sq).toFixed(3)},${(1-b.sq*.8).toFixed(3)}) rotate(${(-a).toFixed(1)}deg)`:''; }
 }
 function select(k){
   const changed=k!==current; current=k; const d=CAST[k];
-  Object.entries(heroChars).forEach(([key,c])=>{ const on=key===k; if(on&&c.el.style.display==='none') c.reactT=performance.now()-c.d.react*.6; c.el.style.display=on?'':'none'; });
+  // troca do personagem: o atual sai desfocando e o novo entra com mola
+  Object.entries(heroChars).forEach(([key,c])=>{
+    clearTimeout(c.swapT);
+    if(key===k){
+      if(c.el.style.display==='none'){ c.el.classList.add('away'); c.el.style.display=''; c.reactT=performance.now()-c.d.react*.6; }
+      requestAnimationFrame(()=>requestAnimationFrame(()=>c.el.classList.remove('away')));
+    } else if(c.el.style.display!=='none'){
+      c.el.classList.add('away'); c.swapT=setTimeout(()=>{ c.el.style.display='none'; }, 360);
+    }
+  });
   document.querySelectorAll('.chip').forEach(b=>{ const on=b.dataset.k===k; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
-  $('feelName').textContent=d.name; $('feelLine').textContent=d.line;
+  // nome da emoção: o antigo sobe desfocando, o novo entra de baixo
+  const nameEl=$('feelName');
+  if(nameEl.lastElementChild?.textContent!==d.name){
+    [...nameEl.children].forEach(o=>{ o.classList.add('out'); setTimeout(()=>o.remove(), 360); });
+    const sp=document.createElement('span'); sp.textContent=d.name; nameEl.appendChild(sp);
+  }
+  $('feelLine').textContent=d.line;
   for(const t in d.c) root.style.setProperty('--'+t, d.c[t]);
   if(changed||!$('bubbles').children.length) renderBubbles(k);
 }
 $('intensity').oninput=(e=>{ intensity=e.target.value/100; $('intLbl').textContent=intensity<.4?'um pouco':intensity<.7?'mais ou menos':intensity<.9?'bastante':'muito'; });
 $('skip').onclick=()=>select('nimbo');
 
+/* deslizar no personagem troca a emoção (esquerda = próxima, direita = anterior) */
+const hero=$('hero'); let sw=null;
+const swDown=e=>{ sw={x:e.clientX, y:e.clientY, id:e.pointerId}; };
+const swUp=e=>{
+  if(!sw||e.pointerId!==sw.id) return; const dx=e.clientX-sw.x, dy=e.clientY-sw.y; sw=null;
+  if(Math.abs(dx)<50||Math.abs(dx)<Math.abs(dy)*1.4) return;
+  const i=ORDER.indexOf(current), n=ORDER.length;
+  select(ORDER[(i+(dx<0?1:-1)+n)%n]);
+  $('swipeHint')?.classList.add('done');
+};
+hero.addEventListener('pointerdown', swDown, true);
+hero.addEventListener('pointerup', swUp, true);
+hero.addEventListener('pointercancel', ()=>{ sw=null; }, true);
+
+/* ao começar a rolar a ficha para baixo, o personagem dá tchau (ainda visível); rearma quando volta ao topo */
+let byeArmed=true;
+const onFormScroll=()=>{
+  const y=form.scrollTop;
+  if(byeArmed && y>60){ byeArmed=false; const c=heroChars[current]; if(c) c.byeT=performance.now(); }
+  else if(!byeArmed && y<16) byeArmed=true;
+};
+form.addEventListener('scroll', onFormScroll, {passive:true});
+
 function start(){ intro.classList.add('out'); form.classList.add('in'); form.scrollTop=0; }
 $('startBtn').onclick=start;
-intro.onpointerdown=e=>{ if(intro.classList.contains('out')||e.target.closest('button')) return; spawn(e.clientX, e.clientY); };
+/* abertura: depois que o logo se monta no centro, ele sobe e o resto da tela aparece */
+const bootT=setTimeout(()=>intro.classList.remove('boot'), reduce?0:1500);
+intro.onpointerdown=e=>{ if(intro.classList.contains('out')||intro.classList.contains('boot')||e.target.closest('button')) return; spawn(e.clientX, e.clientY); };
 $('back').onclick=()=>{ intro.classList.remove('out'); form.classList.remove('in'); };
 
 
@@ -289,7 +419,8 @@ select('nimbo');
 raf=requestAnimationFrame(frame);
 
 return ()=>{
-  alive=false; cancelAnimationFrame(raf);
+  alive=false; cancelAnimationFrame(raf); clearTimeout(bootT);
+  form.removeEventListener('scroll', onFormScroll); hero.removeEventListener('pointerdown', swDown, true); hero.removeEventListener('pointerup', swUp, true);
   window.removeEventListener('pointermove', onMove);
   window.removeEventListener('touchstart', onTouch);
   ['stage','heroSlot','chips','bubbles'].forEach(id=>{ const n=$(id); if(n) n.innerHTML=''; });

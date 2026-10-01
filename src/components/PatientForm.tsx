@@ -19,7 +19,7 @@ export default function PatientForm() {
       <div className="app">
       <button className="theme" id="themeBtn" type="button">Tema: sistema</button>
 
-      <section className="screen" id="intro" aria-label="Boas-vindas">
+      <section className="screen boot" id="intro" aria-label="Boas-vindas">
         <div id="stage" aria-hidden="true" />
         <header className="brand">
           <Logo />
@@ -31,26 +31,32 @@ export default function PatientForm() {
             Preencher ficha de cadastro <Icon name="arrow-right" />
           </button>
         </div>
-        <p className="hint">
-          <span className="tapdot" aria-hidden="true" />
-          Toque na tela e veja uma emoção aparecer
-        </p>
+        <div className="tap-hint" aria-hidden="true">
+          <span className="tap-hand"><span className="tap-ring" /><Icon name="hand" /></span>
+          <span className="tap-text">Hey! Toca aqui</span>
+        </div>
       </section>
 
       <section className="screen" id="form">
         <div className="inner">
           <div className="top">
-            <button className="back" id="back" type="button"><Icon name="arrow-left" className="icon-sm" />Voltar</button>
+            <button className="back-logo" id="back" type="button" aria-label="Voltar ao início"><Logo className="logo-sm" /></button>
             <span className="pill">Ficha de cadastro</span>
           </div>
-          <h2 className="q">Escolha como você está</h2>
-          <div className="hero"><div className="glow" /><div id="heroSlot" /></div>
+          <h2 className="q">Seu sentimento agora é…</h2>
+          <div className="hero" id="hero"><div className="glow" /><div id="heroSlot" />
+            <div className="swipe-hint" id="swipeHint" role="img" aria-label="Deslize o personagem para os lados para trocar de emoção">
+              <Icon name="chevron-left" className="chev l" />
+              <Icon name="hand" className="icon-hand" />
+              <Icon name="chevron-right" className="chev r" />
+            </div>
+          </div>
           <div className="feel" aria-live="polite"><b id="feelName" /><small id="feelLine" /></div>
           <div className="chips" id="chips" role="group" aria-label="Escolha uma emoção" />
 
           <section className="motivos" id="motivos" hidden>
-            <h3>O que tem a ver com isso?</h3>
-            <p>Selecione quantos quiser. Isso ajuda sua psicóloga a entender o momento.</p>
+            <h3>O que trouxe esse sentimento?</h3>
+            <p>Toque nas bolhas que fazem sentido pra você. Pode escolher mais de uma.</p>
             <div className="bubbles" id="bubbles" />
           </section>
 

@@ -1,44 +1,17 @@
 /**
- * Logotipo "nimth": letreiro de traço único (monoline), feito só com tipografia desenhada.
- * O traço usa a cor do texto (currentColor) e o pingo do "i" usa a cor da marca.
- * Ao carregar, as letras se desenham na ordem da escrita e o pingo aparece por último.
+ * Logotipo "nimth" (arquivo original: nimth-logo.svg, 802×199).
+ * Usa a cor do texto (currentColor), então funciona no modo claro e no escuro.
+ * Cada letra é um <path> com classe própria para a animação de abertura.
  */
 export default function Logo({ className = "logo" }: { className?: string }) {
   return (
-    <svg
-      className={className}
-      viewBox="8 -12 366 146"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={11}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      role="img"
-      aria-label="nimth"
-    >
-      <g transform="rotate(-4 200 65)">
-        {/* n (haste) */}
-        <path pathLength={1} d="M22 56 C21 78 22 96 25 113" />
-        {/* n (arco) + i + primeira perna do m */}
-        <path
-          pathLength={1}
-          d="M25 90 C31 66 44 54 58 54 C72 54 79 64 79 80 L79 100 C79 109 84 113 90 111 C97 109 101 100 103 88 C105 78 106 66 106 58 C106 74 106 96 110 106 C113 113 121 114 127 106 C131 98 133 80 133 58 C138 61 145 54 155 54 C166 54 171 62 171 75 L171 112"
-        />
-        {/* segundo arco do m + t + haste do h */}
-        <path
-          pathLength={1}
-          d="M171 79 C175 63 184 54 195 54 C207 54 212 63 212 77 L212 100 C212 109 217 113 223 111 C232 107 252 80 262 52 C270 30 278 12 268 6 C257 0 250 14 248 30 C246 50 246 80 250 96 C252 108 258 113 266 111 C274 108 288 84 298 54 C306 30 314 12 304 6 C293 0 287 14 285 30 C283 52 284 84 284 113"
-        />
-        {/* corte do t */}
-        <path pathLength={1} d="M234 54 L276 51" />
-        {/* arco do h */}
-        <path
-          pathLength={1}
-          d="M285 90 C292 68 304 54 318 54 C331 54 337 63 337 77 L337 97 C337 108 343 114 351 110 C356 108 360 102 362 96"
-        />
-        {/* pingo do i */}
-        <circle cx="112" cy="33" r="7.5" stroke="none" />
-      </g>
+    <svg className={className} viewBox="0 0 802 199" fill="currentColor" role="img" aria-label="nimth">
+      <path className="l-n" d="M32.7551 35.2322L0.268799 35.2142C0.426312 89.0174 -0.455532 144.025 0.332031 197.685L1.18884 198.207C12.9847 197.954 25.4214 198.161 37.2649 198.173L37.2048 93.5461C65.4001 127.847 93.4536 163.504 121.316 198.167L153.787 198.184C153.513 179.635 153.747 160.522 153.747 141.938L153.75 35.2073L116.735 35.2198C117.129 69.9416 116.535 104.95 116.859 139.734C106.171 125.559 93.2553 110.22 82.0299 96.29C65.7151 76.0432 49.3 55.2458 32.7551 35.2322Z" />
+      <path className="l-i" d="M228.001 35.2188L227.973 198.198C215.654 198.124 203.335 198.124 191.016 198.195L191.025 35.2002L228.001 35.2188Z" />
+      <path className="l-dot" d="M232.116 0C231.892 10.7354 223.981 20.0784 213 21.748C200.728 23.6132 189.264 15.1882 187.38 2.91895C187.229 1.93953 187.145 0.964858 187.123 0H232.116Z" />
+      <path className="l-m" d="M489 138C489 150.702 499.297 161 512 161H514V198H512L511.224 197.995C478.445 197.58 452 170.878 452 138V105.107C431.651 135.715 411.526 167.356 391.467 198.198C380.658 198.12 369.849 198.118 359.04 198.192L359.052 104.303L298.004 198.161L265.461 198.188L265.468 35.2148L302.444 35.2109L302.43 128.811C322.58 97.7727 343.375 66.4421 363.153 35.2227L396.051 35.2197L395.956 129.13C401.26 119.619 410.737 105.986 416.862 96.5576L458 35H489V138Z" />
+      <path className="l-t" d="M562 35H612V69H562V138C562 150.703 572.297 161 585 161H615.49L631 176.51V198H585L584.224 197.995C551.445 197.58 525 170.878 525 138V0H562V35Z" />
+      <path className="l-h" d="M686 14.5557V38.9736C697.53 32.0083 711.047 28 725.5 28C767.75 28 802 62.2502 802 104.5V197H765V104.5C765 82.6848 747.315 65 725.5 65C703.685 65 686 82.6848 686 104.5V198H649V0H671.443L686 14.5557Z" />
     </svg>
   );
 }
