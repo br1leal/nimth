@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
+import { supabase, semConfig, TEXTO_LGPD } from "@/lib/supabase";
 
 /**
  * Ficha de cadastro do paciente.
@@ -98,7 +99,8 @@ function YesNo({ id, label, value, error, onChange }: { id: string; label: strin
   );
 }
 
-export default function FichaForm() {
+export default function FichaForm({ slug }: { slug?: string }) {
+  const [envio, setEnvio] = useState<"idle" | "sending" | "done">("idle");
   const [v, setV] = useState<Values>(EMPTY);
   const [err, setErr] = useState<Partial<Record<Key, string>>>({});
   const [cepStatus, setCepStatus] = useState<CepStatus>("idle");
@@ -161,7 +163,43 @@ export default function FichaForm() {
       say("Confira os campos destacados");
       return;
     }
-    say("Ficha pronta! (protótipo: nada foi enviado)");
+    enviar();
+  }
+
+  async function enviar() {
+    const sb = supabase();
+    if (!sb) { say(semConfig); return; }
+    if (!slug) { say("Abra a ficha pelo link que sua psicóloga enviou."); return; }
+    const em = (window as unknown as { __nimthEmocao?: () => { emocao: string | null; motivos: string[]; intensidade: number | null } }).__nimthEmocao?.()
+      ?? { emocao: null, motivos: [], intensidade: null };
+    const [d, m, y] = v.nascimento.split("/");
+    setEnvio("sending");
+    const { error } = await sb.rpc("enviar_ficha", {
+      p_slug: slug,
+      p_nome: v.nome.trim(),
+      p_nascimento: `${y}-${m}-${d}`,
+      p_telefone: v.telefone,
+      p_dados: {
+        endereco: { cep: v.cep, rua: v.rua.trim(), numero: v.numero.trim(), complemento: v.complemento.trim(), bairro: v.bairro.trim(), cidade: v.cidade.trim(), uf: v.uf.trim() },
+        emergencia: { nome: v.emergNome.trim(), telefone: v.emergTel },
+        saude: {
+          medicamento: v.med === "sim", medicamentos: v.med === "sim" ? v.medQuais.trim() : "",
+          medico: v.medico === "sim", medicoNome: v.medico === "sim" ? v.medicoNome.trim() : "", medicoContato: v.medico === "sim" ? v.medicoContato.trim() : "",
+        },
+      },
+      p_emocao: em.emocao,
+      p_motivos: em.motivos,
+      p_intensidade: em.intensidade,
+      p_lgpd: v.lgpd,
+      p_lgpd_texto: TEXTO_LGPD,
+    });
+    if (error) {
+      setEnvio("idle");
+      say(error.message.includes("link inválido") ? "Esse link não está mais ativo. Peça um novo à sua psicóloga." : "Não deu para enviar agora. Confira a internet e tente de novo.");
+      return;
+    }
+    setEnvio("done");
+    requestAnimationFrame(() => document.getElementById("ficha-ok")?.scrollIntoView({ behavior: "smooth", block: "center" }));
   }
 
   const inp = (k: Key) => ({
@@ -175,6 +213,14 @@ export default function FichaForm() {
     cepStatus === "notfound" ? "Não encontramos esse CEP. Preencha o endereço abaixo." :
     cepStatus === "error" ? "Não deu para buscar agora. Preencha o endereço abaixo." :
     "O endereço é preenchido automaticamente.";
+
+  if (envio === "done") return (
+    <section className="card enviado" id="ficha-ok" role="status">
+      <span className="enviado-ic"><Icon name="check" className="icon-lg" /></span>
+      <h3>Ficha enviada</h3>
+      <p>Obrigado por compartilhar. Sua psicóloga já recebeu seus dados com segurança.</p>
+    </section>
+  );
 
   return (
     <>
@@ -264,11 +310,11 @@ export default function FichaForm() {
           <div className={`field${err.lgpd ? " has-error" : ""}`}>
             <label className="consent" htmlFor="f-lgpd">
               <input type="checkbox" id="f-lgpd" checked={v.lgpd} onChange={e => set("lgpd", e.target.checked)} />
-              Autorizo o uso destes dados, inclusive os de saúde, pela minha psicóloga, apenas para o meu atendimento, conforme a LGPD.
+              {TEXTO_LGPD}
             </label>
             {err.lgpd && <p className="msg err"><Icon name="alert" className="icon-sm" />{err.lgpd}</p>}
           </div>
-          <button className="btn btn-icon" type="submit">Enviar ficha <Icon name="arrow-right" /></button>
+          <button className="btn btn-icon" type="submit" disabled={envio === "sending"}>{envio === "sending" ? <>Enviando… <Icon name="loader" className="spin" /></> : <>Enviar ficha <Icon name="arrow-right" /></>}</button>
           <p className="note"><Icon name="lock" className="icon-sm" />Seus dados ficam guardados com segurança e só a sua psicóloga tem acesso.</p>
         </div>
       </form>

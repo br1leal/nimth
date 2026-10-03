@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import { initNimbo } from "@/lib/nimbo/engine";
 import Logo from "@/components/Logo";
 import Icon from "@/components/Icon";
@@ -11,8 +12,21 @@ import FichaForm from "@/components/FichaForm";
  * A marcação é estática; o motor em lib/nimbo/engine.ts monta os personagens,
  * as animações, os chips de emoção e as bolhas de motivos.
  */
-export default function PatientForm() {
+export default function PatientForm({ slug }: { slug?: string }) {
   useEffect(() => initNimbo(), []);
+  const [psi, setPsi] = useState("");
+
+  useEffect(() => {
+    // links de convite / nova senha do Supabase chegam na raiz: manda para a tela de definir senha
+    const h = window.location.hash;
+    if (/type=(invite|recovery|signup)|error_code=/.test(h)) { window.location.replace("/definir-senha" + h); return; }
+    const sb = supabase();
+    if (!slug || !sb) return;
+    sb.rpc("psicologo_do_link", { p_slug: slug }).then(({ data }) => {
+      const nome = (data as { nome: string }[] | null)?.[0]?.nome?.trim();
+      if (nome) setPsi(nome.split(/\s+/)[0]);
+    });
+  }, [slug]);
 
   return (
     <>
@@ -45,7 +59,7 @@ export default function PatientForm() {
         <div className="inner">
           <div className="top">
             <button className="back-logo" id="back" type="button" aria-label="Voltar ao início"><Logo className="logo-sm" /></button>
-            <span className="pill">Ficha de cadastro</span>
+            <span className="pill">{psi ? `Ficha · ${psi}` : "Ficha de cadastro"}</span>
           </div>
           <h2 className="q">Seu sentimento agora é…</h2>
           <div className="hero" id="hero"><div className="glow" /><div id="heroSlot" />
@@ -71,7 +85,7 @@ export default function PatientForm() {
           </div>
           <button className="skip" id="skip" type="button" hidden>Prefiro não responder</button>
 
-          <FichaForm />
+          <FichaForm slug={slug} />
         </div>
       </section>
 

@@ -421,8 +421,11 @@ $('themeBtn').onclick=e=>{ e.stopPropagation(); dark=!dark; applyTheme(true); };
 select('nimbo');
 raf=requestAnimationFrame(frame);
 
+/* a ficha (FichaForm) lê daqui a emoção escolhida na hora de enviar */
+window.__nimthEmocao=()=>({ emocao:current, motivos: current&&current!=='nimbo' ? [...(picked[current]||[])] : [], intensidade: current&&current!=='nimbo' ? Math.round(intensity*100) : null });
+
 return ()=>{
-  alive=false; cancelAnimationFrame(raf); clearTimeout(bootT);
+  alive=false; cancelAnimationFrame(raf); delete window.__nimthEmocao; clearTimeout(bootT);
   form.removeEventListener('scroll', onFormScroll); hero.removeEventListener('pointerdown', swDown, true); hero.removeEventListener('pointerup', swUp, true);
   window.removeEventListener('pointermove', onMove);
   window.removeEventListener('touchstart', onTouch);
