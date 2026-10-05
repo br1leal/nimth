@@ -254,7 +254,7 @@ const heroSlot=$('heroSlot'), chipsEl=$('chips'), heroChars={};
 Object.keys(CAST).forEach(k=>{ const c=makeChar(k,{tilt:3, floatAmp:4}); c.el.style.display='none'; c.baseTransform='translate(-50%,-56%)';
   c.el.style.width=`min(${Math.min(50,38/CAST[k].ratio).toFixed(0)}cqw, ${Math.round(210/CAST[k].ratio)}px)`; heroSlot.appendChild(c.el); heroChars[k]=c; });
 ORDER.forEach(k=>{
-  const b=document.createElement('button'); b.type='button'; b.className='chip'; b.dataset.k=k; b.setAttribute('aria-label', CAST[k].name);
+  const b=document.createElement('button'); b.type='button'; b.className='mini'; b.dataset.k=k; b.setAttribute('aria-label', CAST[k].name);
   const slot=document.createElement('div'); slot.className='slot';
   const c=makeChar(k,{static:true}); c.el.style.width=Math.round(Math.min(44, 35/CAST[k].ratio))+'px'; c.el.querySelector('.limbs').remove();
   const cr=c.el.querySelector('.crossed'); if(cr) cr.remove();
@@ -365,7 +365,7 @@ function select(k){
       c.el.classList.add('away'); c.swapT=setTimeout(()=>{ c.el.style.display='none'; }, 360);
     }
   });
-  document.querySelectorAll('.chip').forEach(b=>{ const on=b.dataset.k===k; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+  document.querySelectorAll('.mini').forEach(b=>{ const on=b.dataset.k===k; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
   // nome da emoção: o antigo sobe desfocando, o novo entra de baixo
   const nameEl=$('feelName');
   if(nameEl.lastElementChild?.textContent!==d.name){

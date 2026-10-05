@@ -1,0 +1,20 @@
+/* ---------------------------------------------------------------------
+   Design system do nimth: Tailwind v4 + HeroUI v3 + tema nimth.
+   Carregado só nas telas do sistema (painel, entrar, definir senha).
+   O Tailwind gera classes só a partir das pastas do sistema.
+   --------------------------------------------------------------------- */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "../styles/preflight-ds.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "./(sistema)";
+@source "../components/painel";
+@source "../components/ui";
+@import "tw-animate-css";
+@import "@heroui/styles/base" layer(base);
+@import "@heroui/styles/base/scrollbar.css" layer(base);
+@import "@heroui/styles/components/index.css" layer(components);
+@import "@heroui/styles/themes/default" layer(theme);
+@import "@heroui/styles/utilities";
+@import "@heroui/styles/variants";
+@import "./tema.css";

@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Logo from "@/components/Logo";
+import { Button, Description, Input, Label, Spinner, TextField, buttonVariants } from "@heroui/react";
+import AuthCard, { Aviso } from "@/components/painel/AuthCard";
 import Icon from "@/components/Icon";
-import ThemeToggle from "@/components/ThemeToggle";
 import { supabase, semConfig } from "@/lib/supabase";
 
 /**
@@ -58,34 +58,47 @@ export default function DefinirSenha() {
     router.replace("/painel");
   }
 
+  if (pronto === "esperando") return (
+    <AuthCard>
+      <p className="flex items-center justify-center gap-3 py-4 text-sm text-muted"><Spinner size="sm" color="current" />Abrindo seu convite…</p>
+    </AuthCard>
+  );
+
+  if (pronto === "sem-sessao") return (
+    <AuthCard titulo="Link expirado" texto={msg || "Esse link não vale mais. Peça um novo convite ou use \"Esqueci minha senha\" na tela de entrar."}>
+      <a className={buttonVariants({ variant: "primary", size: "lg", fullWidth: true })} href="/entrar">Ir para entrar <Icon name="arrow-right" className="icon-sm" /></a>
+    </AuthCard>
+  );
+
   return (
-    <div className="pnl pnl-auth">
-      <form className="auth-card" onSubmit={salvar} noValidate>
-        <Logo className="logo-auth" />
-        {pronto === "esperando" && <p className="auth-wait"><Icon name="loader" className="spin" /> Abrindo seu convite…</p>}
-        {pronto === "sem-sessao" && (
-          <div className="auth-head">
-            <h1>Link expirado</h1>
-            <p>{msg || "Esse link não vale mais. Peça um novo convite ou use \"Esqueci minha senha\" na tela de entrar."}</p>
-            <a className="btn btn-icon" href="/entrar">Ir para entrar <Icon name="arrow-right" /></a>
-          </div>
-        )}
-        {pronto === "ok" && <>
-          <div className="auth-head">
-            <h1>{primeiro ? "Boas-vindas ao nimth" : "Nova senha"}</h1>
-            <p>{primeiro ? "Complete seus dados e crie uma senha para entrar." : "Crie uma nova senha para sua conta."}</p>
-          </div>
-          {primeiro && <>
-            <div className="field"><label htmlFor="d-nome">Nome completo</label><input className="inp" id="d-nome" autoComplete="name" value={nome} onChange={e => setNome(e.target.value)} /></div>
-            <div className="field"><label htmlFor="d-crp">CRP</label><input className="inp" id="d-crp" value={crp} onChange={e => setCrp(e.target.value)} placeholder="00/000000" /></div>
-          </>}
-          <div className="field"><label htmlFor="d-s1">Senha</label><input className="inp" id="d-s1" type="password" autoComplete="new-password" value={senha} onChange={e => setSenha(e.target.value)} placeholder="Pelo menos 8 caracteres" /></div>
-          <div className="field"><label htmlFor="d-s2">Repita a senha</label><input className="inp" id="d-s2" type="password" autoComplete="new-password" value={senha2} onChange={e => setSenha2(e.target.value)} /></div>
-          {msg && <p className="msg err"><Icon name="alert" className="icon-sm" />{msg}</p>}
-          <button className="btn btn-icon" type="submit" disabled={busy}>{busy ? <Icon name="loader" className="spin" /> : <>Salvar e entrar <Icon name="arrow-right" /></>}</button>
-        </>}
-      </form>
-      <ThemeToggle />
-    </div>
+    <AuthCard
+      titulo={primeiro ? "Boas-vindas ao nimth" : "Nova senha"}
+      texto={primeiro ? "Complete seus dados e crie uma senha para entrar." : "Crie uma nova senha para sua conta."}
+      onSubmit={salvar}
+    >
+      {primeiro && <>
+        <TextField value={nome} onChange={setNome} autoComplete="name" name="nome">
+          <Label>Nome completo</Label>
+          <Input placeholder="Como aparece para os pacientes" />
+        </TextField>
+        <TextField value={crp} onChange={setCrp} name="crp">
+          <Label>CRP</Label>
+          <Input placeholder="00/000000" />
+        </TextField>
+      </>}
+      <TextField value={senha} onChange={setSenha} type="password" autoComplete="new-password" name="senha">
+        <Label>Senha</Label>
+        <Input />
+        <Description>Pelo menos 8 caracteres.</Description>
+      </TextField>
+      <TextField value={senha2} onChange={setSenha2} type="password" autoComplete="new-password" name="senha2">
+        <Label>Repita a senha</Label>
+        <Input />
+      </TextField>
+      {msg && <Aviso>{msg}</Aviso>}
+      <Button type="submit" variant="primary" size="lg" fullWidth isDisabled={busy} className="mt-1">
+        {busy ? <Spinner size="sm" color="current" /> : <>Salvar e entrar <Icon name="arrow-right" className="icon-sm" /></>}
+      </Button>
+    </AuthCard>
   );
 }

@@ -1,0 +1,141 @@
+/* =====================================================================
+   Tema nimth para o HeroUI v3
+   Liga as variáveis do HeroUI aos tokens da marca (globals.css).
+   Fica fora de camadas (@layer), então vence o tema padrão do HeroUI.
+   Para mudar a cara do sistema inteiro, mexa aqui.
+   ===================================================================== */
+
+@theme inline {
+  --font-sans: var(--font);
+  --font-serif: var(--display);
+  --font-mono: var(--mono);
+  --font-hand: var(--hand);
+}
+
+:root {
+  /* Forma: raio base. Botão = 3x (pílula), cartão = 32px, campo = --field-radius */
+  --radius: 0.625rem;
+  --field-radius: 16px;
+  --field-border-width: 1px;
+
+  /* Marca */
+  --accent: #6A3DF5;
+  --accent-foreground: #FFFFFF;
+  --focus: var(--brand);
+
+  /* Base */
+  --background: var(--bg);
+  --foreground: var(--ink);
+  --muted: var(--ink-2);
+
+  /* Superfícies (cartões, listas) e camadas flutuantes (menus, diálogos) */
+  --surface: #FFFFFF;
+  --surface-foreground: var(--ink);
+  --surface-secondary: #F6F3EE;
+  --surface-tertiary: #EFEBE4;
+  --overlay: #FFFFFF;
+  --overlay-foreground: var(--ink);
+
+  /* Neutro (botão secundário, chips) */
+  --default: #F1EDE7;
+  --default-foreground: var(--ink);
+  --segment: #FFFFFF;
+  --segment-foreground: var(--ink);
+
+  /* Campos */
+  --field-background: var(--field);
+  --field-foreground: var(--ink);
+  --field-placeholder: var(--ink-3);
+  --field-border: var(--line);
+
+  /* Estados */
+  --danger: #C2412D;
+  --danger-foreground: #FFFFFF;
+  --success: var(--ok);
+  --success-foreground: #FFFFFF;
+  --warning: #E0A23B;
+  --warning-foreground: #17151C;
+
+  /* Linhas */
+  --border: var(--line);
+  --separator: #EEE9E1;
+
+  /* Sombras suaves, levemente roxas */
+  --surface-shadow: 0 1px 2px rgba(30, 24, 48, .04), 0 8px 24px -12px rgba(30, 24, 48, .12);
+  --overlay-shadow: 0 2px 8px rgba(30, 24, 48, .06), 0 18px 40px -12px rgba(30, 24, 48, .22);
+  --field-shadow: 0 1px 2px rgba(30, 24, 48, .04);
+}
+
+/* Escuro: segue a escolha salva (data-theme) ou o sistema */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --accent: #A67AFF; --accent-foreground: #16141C;
+    --surface: #1C1A23; --surface-secondary: #23212B; --surface-tertiary: #2A2733;
+    --overlay: #201E28; --default: #2A2733; --segment: #34303F;
+    --danger: #FF8A75; --danger-foreground: #16141C; --success-foreground: #16141C;
+    --separator: #262330;
+    --surface-shadow: 0 0 0 1px rgba(255, 255, 255, .05) inset;
+    --overlay-shadow: 0 0 0 1px rgba(255, 255, 255, .08) inset, 0 18px 40px -12px rgba(0, 0, 0, .6);
+    --field-shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  --accent: #A67AFF; --accent-foreground: #16141C;
+  --surface: #1C1A23; --surface-secondary: #23212B; --surface-tertiary: #2A2733;
+  --overlay: #201E28; --default: #2A2733; --segment: #34303F;
+  --danger: #FF8A75; --danger-foreground: #16141C; --success-foreground: #16141C;
+  --separator: #262330;
+  --surface-shadow: 0 0 0 1px rgba(255, 255, 255, .05) inset;
+  --overlay-shadow: 0 0 0 1px rgba(255, 255, 255, .08) inset, 0 18px 40px -12px rgba(0, 0, 0, .6);
+  --field-shadow: none;
+}
+
+/* =====================================================================
+   Ajustes do sistema (painel e telas de entrada)
+   ===================================================================== */
+html.ds, html.ds body { height: auto; min-height: 100%; overflow: visible; }
+html.ds body { background: var(--background); color: var(--foreground); }
+
+/* Avatar com o personagem: fundo no tom claro da emoção */
+.emo-av { background: var(--av); }
+
+/* Topo da ficha: banho de cor da emoção */
+.ficha-topo {
+  background:
+    radial-gradient(120% 140% at 0% 0%, color-mix(in oklab, var(--fe1, var(--brand-soft)) 90%, transparent), transparent 70%),
+    var(--surface);
+}
+.ficha-topo .emo-nome { color: var(--fe3, var(--muted)); }
+
+/* Cartão do link: vidro verde-água e azul, como o botão da tela inicial */
+.link-ficha {
+  background:
+    radial-gradient(90% 160% at 0% 0%, color-mix(in oklab, #35D0C3 22%, transparent), transparent 60%),
+    radial-gradient(90% 160% at 100% 100%, color-mix(in oklab, #4B8BFF 22%, transparent), transparent 60%),
+    var(--surface);
+}
+
+/* Fundo das telas de entrada */
+.auth-fundo {
+  background:
+    radial-gradient(60% 50% at 15% 10%, color-mix(in oklab, var(--brand) 14%, transparent), transparent 70%),
+    radial-gradient(50% 45% at 90% 90%, color-mix(in oklab, #35D0C3 14%, transparent), transparent 70%),
+    var(--background);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .emo-av { background: color-mix(in oklab, var(--av) 22%, var(--surface)); }
+  :root:not([data-theme="light"]) .ficha-topo { background: radial-gradient(120% 140% at 0% 0%, color-mix(in oklab, var(--fe1, var(--brand-soft)) 16%, transparent), transparent 70%), var(--surface); }
+  :root:not([data-theme="light"]) .ficha-topo .emo-nome { color: var(--fe1, var(--muted)); }
+}
+:root[data-theme="dark"] .emo-av { background: color-mix(in oklab, var(--av) 22%, var(--surface)); }
+:root[data-theme="dark"] .ficha-topo { background: radial-gradient(120% 140% at 0% 0%, color-mix(in oklab, var(--fe1, var(--brand-soft)) 16%, transparent), transparent 70%), var(--surface); }
+:root[data-theme="dark"] .ficha-topo .emo-nome { color: var(--fe1, var(--muted)); }
+
+/* PDF (impressão): só o conteúdo, em branco */
+@media print {
+  html.ds, html.ds body { background: #fff !important; color: #17151C !important; }
+  .no-print, [data-toast-region], .toast-region { display: none !important; }
+  html.ds main { max-width: none; padding: 0; }
+  html.ds .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+}

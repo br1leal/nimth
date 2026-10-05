@@ -85,7 +85,7 @@ function Field({ id, label, required, error, hint, children }: { id: string; lab
 function YesNo({ id, label, value, error, onChange }: { id: string; label: string; value: YN; error?: string; onChange: (v: YN) => void }) {
   return (
     <div className={`field${error ? " has-error" : ""}`}>
-      <span className="label" id={`${id}-label`}>{label}<em aria-hidden="true"> *</em></span>
+      <span className="rotulo" id={`${id}-label`}>{label}<em aria-hidden="true"> *</em></span>
       <div className="seg" role="radiogroup" aria-labelledby={`${id}-label`} aria-required="true" id={id}>
         {([["sim", "Sim"], ["nao", "Não"]] as const).map(([v, t]) => (
           <label key={v} className="seg-opt">
@@ -215,7 +215,7 @@ export default function FichaForm({ slug }: { slug?: string }) {
     "O endereço é preenchido automaticamente.";
 
   if (envio === "done") return (
-    <section className="card enviado" id="ficha-ok" role="status">
+    <section className="cartao enviado" id="ficha-ok" role="status">
       <span className="enviado-ic"><Icon name="check" className="icon-lg" /></span>
       <h3>Ficha enviada</h3>
       <p>Obrigado por compartilhar. Sua psicóloga já recebeu seus dados com segurança.</p>
@@ -225,7 +225,7 @@ export default function FichaForm({ slug }: { slug?: string }) {
   return (
     <>
       <form className="ficha" id="ficha" noValidate onSubmit={onSubmit}>
-        <section className="card">
+        <section className="cartao">
           <h3>Seus dados</h3>
           <Field id="f-nome" label="Nome completo" required error={err.nome}>
             <input {...inp("nome")} value={v.nome} onChange={e => set("nome", e.target.value)} placeholder="Como está no documento" autoComplete="name" />
@@ -238,7 +238,7 @@ export default function FichaForm({ slug }: { slug?: string }) {
           </Field>
         </section>
 
-        <section className="card">
+        <section className="cartao">
           <h3>Endereço</h3>
           <Field id="f-cep" label="CEP" required error={err.cep} hint={cepHint}>
             <div className="inp-wrap">
@@ -273,7 +273,7 @@ export default function FichaForm({ slug }: { slug?: string }) {
           </div>
         </section>
 
-        <section className="card">
+        <section className="cartao">
           <h3>Contato de emergência</h3>
           <Field id="f-emergNome" label="Nome do contato" required error={err.emergNome}>
             <input {...inp("emergNome")} value={v.emergNome} onChange={e => set("emergNome", e.target.value)} placeholder="Quem podemos chamar" autoComplete="off" />
@@ -283,7 +283,7 @@ export default function FichaForm({ slug }: { slug?: string }) {
           </Field>
         </section>
 
-        <section className="card">
+        <section className="cartao">
           <h3>Saúde</h3>
           <YesNo id="f-med" label="Usa algum medicamento?" value={v.med} error={err.med} onChange={x => set("med", x)} />
           {v.med === "sim" && (
@@ -318,7 +318,7 @@ export default function FichaForm({ slug }: { slug?: string }) {
           <p className="note"><Icon name="lock" className="icon-sm" />Seus dados ficam guardados com segurança e só a sua psicóloga tem acesso.</p>
         </div>
       </form>
-      <div className={`toast${toast ? " on" : ""}`} role="status" aria-live="polite">{toast}</div>
+      <div className={`aviso${toast ? " on" : ""}`} role="status" aria-live="polite">{toast}</div>
     </>
   );
 }
