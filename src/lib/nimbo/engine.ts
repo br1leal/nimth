@@ -270,9 +270,9 @@ function spawn(x,y){
    e depois se escondem. Volta a acontecer de vez em quando se ninguém tocar na tela. */
 let peekers=[], peekT=0, lastTouch=performance.now(), lastPeek=0, peekLayer=null;
 const PEEK_SIDES=[
-  {side:'left',   y:.62, rot:22},
+  {side:'left',   y:.66, rot:16},
   {side:'bottom', y:1,   rot:0},
-  {side:'right',  y:.5,  rot:-22},
+  {side:'right',  y:.29, rot:-16},
 ];
 function peek(){
   if(!alive || reduce || peekers.length || intro.classList.contains('out') || intro.classList.contains('boot') || document.hidden) return;
@@ -282,14 +282,17 @@ function peek(){
   const keys=[...ORDER].sort(()=>Math.random()-.5).slice(0,3);
   PEEK_SIDES.forEach((P,i)=>{
     const k=keys[i], d=CAST[k], bottom=P.side==='bottom';
-    const w=Math.min(sr.width*(bottom?.44:.42), bottom?230:210), h=w*d.ratio;
+    const w=Math.min(sr.width*(bottom?.36:.34), bottom?190:170), h=w*d.ratio;
     const box=document.createElement('div'); box.className='peek peek-'+P.side;
     box.style.width=w+'px'; box.style.height=h+'px'; box.style.setProperty('--rot', P.rot+'deg');
-    // posição final: uma parte do corpo fica escondida atrás da borda
-    if(P.side==='left'){ box.style.left=(-w*.4)+'px'; box.style.top=(sr.height*P.y-h/2)+'px'; }
-    if(P.side==='right'){ box.style.left=(sr.width-w*.6)+'px'; box.style.top=(sr.height*P.y-h/2)+'px'; }
-    if(bottom){ box.style.left=(sr.width*.5-w/2)+'px'; box.style.top=(sr.height-h*.6)+'px'; }
+    // posição final: só o rosto aparece, com os dois olhos sempre visíveis
+    const exMin=Math.min(d.eyes[0][0],d.eyes[1][0]), exMax=Math.max(d.eyes[0][0],d.eyes[1][0]), pad=d.r*1.4;
+    const eyeY=d.eyes[0][1]*10/(1000*d.ratio)*h, faceBottom=eyeY+d.r*3/100*w;
+    if(P.side==='left'){ box.style.left=(8-(exMin-pad)/100*w)+'px'; box.style.top=(sr.height*P.y-h/2)+'px'; }
+    if(P.side==='right'){ box.style.left=(sr.width-8-(exMax+pad)/100*w)+'px'; box.style.top=(sr.height*P.y-h/2)+'px'; }
+    if(bottom){ box.style.left=(sr.width*.5-w/2)+'px'; box.style.top=(sr.height-faceBottom-6)+'px'; }
     const c=makeChar(k,{tilt:2, floatAmp:2, parallax:2, peek:1});
+    c.el.querySelector('.limbs')?.remove(); // espiando: só o corpo e o rosto, sem braços e pernas soltos
     c.baseTransform='translate(-50%,-50%)'; c.el.style.width='100%'; c.el.style.left='50%'; c.el.style.top='50%';
     box.appendChild(c.el); peekLayer.appendChild(box);
     peekers.push({box,c});

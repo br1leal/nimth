@@ -62,12 +62,15 @@ body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); 
   transition:top .85s cubic-bezier(.65,0,.25,1), translate .85s cubic-bezier(.65,0,.25,1)}
 .logo{width:clamp(104px, 28cqw, 128px); height:auto; overflow:visible; color:var(--ink); transition:width .85s cubic-bezier(.65,0,.25,1)}
 /* abertura: o logo aparece sozinho no centro, letra por letra, e depois sobe para o topo; o resto entra em seguida */
-/* escrita do logo: a máscara revela o desenho traço a traço, como uma linha contínua (só no logo grande) */
+/* escrita do logo: uma linha contínua contorna as letras (como uma assinatura) e o preenchimento aparece logo depois.
+   Só no logo grande da tela inicial; nos outros lugares o contorno fica escondido. */
 .l-tinta{fill:currentColor}
-.l-traco{stroke-dasharray:1 2; stroke-dashoffset:0}
-.logo .l-traco{animation:escrever var(--dur) cubic-bezier(.45,.05,.55,.95) var(--atraso) both, encher .3s ease 1.05s both}
-@keyframes escrever{from{stroke-dashoffset:1.001}}
-@keyframes encher{to{stroke-width:44}}
+.l-contorno{opacity:0}
+.logo .l-contorno{stroke-dasharray:1 1; animation:assinar .5s cubic-bezier(.5,.1,.4,1) calc(.05s + var(--i) * .13s) both, sumir .3s ease calc(.5s + var(--i) * .13s) forwards}
+.logo .l-tinta{transform-box:fill-box; transform-origin:50% 60%; animation:preencher .35s ease calc(.3s + var(--i) * .13s) both}
+@keyframes assinar{from{stroke-dashoffset:1; opacity:1} to{stroke-dashoffset:0; opacity:1}}
+@keyframes sumir{from{opacity:1} to{opacity:0}}
+@keyframes preencher{from{opacity:0; transform:scale(.985)}}
 #intro.boot .brand{top:50%; translate:0 -50%}
 #intro.boot .logo{width:min(62cqw, 290px)}
 #intro .copy > *, #intro .tap-hint{transition:opacity .6s ease, translate .7s cubic-bezier(.2,.8,.2,1)}
@@ -96,29 +99,39 @@ body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); 
   background:var(--vidro-bg); color:var(--vidro-ink); border:1px solid var(--vidro-line);
   box-shadow:inset 0 1px 0 var(--vidro-hi), inset 0 -8px 18px -10px var(--vidro-low), 0 16px 34px -16px var(--vidro-shadow);
   -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px)}
+/* As camadas de cor ficam DENTRO do botão (inset 0, mesmo raio) e se movem pela posição do fundo.
+   Nada passa da borda, então não "vaza" em nenhum navegador (Safari do iPhone incluído). */
 .vidro::before, .vidro::after,
 html.ds .button--primary::before, html.ds .button--primary::after{
-  content:""; position:absolute; inset:-70% -35%; z-index:-1; pointer-events:none; filter:blur(12px); opacity:var(--vidro-blob)}
-/* camada 1: verdes (verde-água, menta, verde-claro) */
+  content:""; position:absolute; inset:0; border-radius:inherit; z-index:-1; pointer-events:none; opacity:var(--vidro-blob); background-repeat:no-repeat}
+/* camada 1: lilás, roxo e azul */
 .vidro::before, html.ds .button--primary::before{
-  background:
-    radial-gradient(42% 70% at 18% 50%, #AB9FF2, transparent 75%),
-    radial-gradient(38% 70% at 76% 44%, #7FA8FF, transparent 75%),
-    radial-gradient(30% 56% at 50% 24%, #C7B8FF, transparent 75%),
-    radial-gradient(28% 52% at 94% 82%, #8C7BFF, transparent 75%);
-  animation:flowA 5.5s ease-in-out infinite alternate}
-/* camada 2: branco e bege, mais um brilho diagonal que atravessa o botão */
+  background-image:
+    radial-gradient(closest-side, #AB9FF2, transparent),
+    radial-gradient(closest-side, #7FA8FF, transparent),
+    radial-gradient(closest-side, #C7B8FF, transparent),
+    radial-gradient(closest-side, #8C7BFF, transparent);
+  background-size:70% 220%, 65% 220%, 55% 200%, 50% 190%;
+  animation:fluxoA 6s ease-in-out infinite alternate}
+/* camada 2: brilhos brancos e azul-claro, mais um reflexo diagonal que atravessa o botão */
 .vidro::after, html.ds .button--primary::after{
-  background:
-    linear-gradient(105deg, transparent 38%, rgba(255,255,255,.75) 48%, transparent 58%) 0 0 / 300% 100% no-repeat,
-    radial-gradient(20% 42% at 40% 74%, rgba(255,255,255,.9), transparent 75%),
-    radial-gradient(18% 38% at 64% 72%, #BFE3FF, transparent 75%),
-    radial-gradient(14% 30% at 30% 22%, rgba(244,240,255,.9), transparent 75%);
+  background-image:
+    linear-gradient(105deg, transparent 38%, rgba(255,255,255,.7) 48%, transparent 58%),
+    radial-gradient(closest-side, rgba(255,255,255,.85), transparent),
+    radial-gradient(closest-side, #BFE3FF, transparent),
+    radial-gradient(closest-side, rgba(244,240,255,.85), transparent);
+  background-size:300% 100%, 34% 150%, 30% 140%, 26% 120%;
   mix-blend-mode:var(--vidro-blend);
-  animation:flowB 7s ease-in-out infinite alternate, brilho 4.8s cubic-bezier(.45,0,.2,1) infinite}
-@keyframes flowA{0%{transform:translate(-10%,-6%) rotate(0deg) scale(1)} 50%{transform:translate(9%,6%) rotate(24deg) scale(1.08)} 100%{transform:translate(-4%,8%) rotate(-16deg) scale(.96)}}
-@keyframes flowB{0%{transform:translate(8%,5%) rotate(0deg)} 50%{transform:translate(-9%,-7%) rotate(-24deg)} 100%{transform:translate(5%,-4%) rotate(18deg)}}
-@keyframes brilho{0%,55%{background-position:120% 0, 0 0, 0 0, 0 0} 85%,100%{background-position:-20% 0, 0 0, 0 0, 0 0}}
+  animation:fluxoB 7s ease-in-out infinite}
+@keyframes fluxoA{
+  0%{background-position:-10% 40%, 90% 70%, 50% -40%, 110% 120%}
+  50%{background-position:45% 70%, 20% 20%, 85% 90%, 60% -30%}
+  100%{background-position:100% 30%, -10% 60%, 15% 40%, 0% 110%}}
+@keyframes fluxoB{
+  0%{background-position:130% 0, 25% 90%, 70% 80%, 30% 10%}
+  40%{background-position:130% 0, 60% 10%, 30% 30%, 80% 90%}
+  70%{background-position:-30% 0, 85% 70%, 10% 90%, 55% 20%}
+  100%{background-position:-30% 0, 25% 90%, 70% 80%, 30% 10%}}
 .vidro:hover, html.ds .button--primary:hover{box-shadow:inset 0 1px 0 var(--vidro-hi), inset 0 -8px 18px -10px var(--vidro-low), 0 20px 40px -14px var(--vidro-shadow)}
 .vidro:disabled, html.ds .button--primary[data-disabled]{opacity:.7}
 @keyframes ripple{from{transform:scale(1); opacity:.9} to{transform:scale(2.8); opacity:0}}
@@ -132,9 +145,9 @@ html.ds .button--primary::before, html.ds .button--primary::after{
 .peek-layer{position:absolute; inset:0; z-index:-1; overflow:hidden}
 .peek{position:absolute; z-index:0; pointer-events:none; transition:transform .5s cubic-bezier(.55,0,.85,.35)}
 .peek .char{pointer-events:auto}
-.peek-left{transform:translateX(-80%) rotate(var(--rot))}
-.peek-right{transform:translateX(80%) rotate(var(--rot))}
-.peek-bottom{transform:translateY(90%)}
+.peek-left{transform:translateX(-115%) rotate(var(--rot))}
+.peek-right{transform:translateX(115%) rotate(var(--rot))}
+.peek-bottom{transform:translateY(110%)}
 .peek.show{transform:rotate(var(--rot)); transition:transform 1s cubic-bezier(.34,1.45,.64,1)}
 .spark{position:absolute; width:12px; height:12px; margin:-6px 0 0 -6px; border-radius:50%; pointer-events:none; background:radial-gradient(circle, var(--c) 0%, transparent 70%); animation:spark .8s cubic-bezier(.2,.7,.3,1) forwards}
 @keyframes spark{from{transform:scale(1); opacity:.95} to{transform:scale(26); opacity:0}}
@@ -148,7 +161,7 @@ html.ds .button--primary::before, html.ds .button--primary::after{
 .inner{max-width:520px; margin:0 auto; padding-inline:20px; padding-block:calc(22px + env(safe-area-inset-top,0px)) 56px; display:grid; gap:24px}
 .back-logo{border:0; background:none; padding:6px 4px; margin:-6px -4px; cursor:pointer; color:var(--ink); display:flex}
 .logo-sm{width:66px; height:auto; display:block}
-.logo-sm .l-traco{animation:none}
+.logo-sm .l-contorno, .logo-sm .l-tinta{animation:none}
 .top{display:flex; justify-content:space-between; align-items:center}
 .back{display:inline-flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--card-line); border-radius:var(--r-pill); height:40px; padding:0 16px 0 12px; font-size:13px; cursor:pointer}
 .pill{font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; padding:9px 14px; border-radius:999px; background:var(--brand-soft); color:var(--brand-ink)}
@@ -289,4 +302,4 @@ html.ds .button--primary::before, html.ds .button--primary::after{
 .enviado p{margin:0; color:var(--ink-2); max-width:30ch; line-height:1.45}
 .btn:disabled{opacity:.7; cursor:progress}
 .icon.spin{animation:spin .8s linear infinite}
-@media (prefers-reduced-motion: reduce){ .logo .l-traco{animation:none} }
+@media (prefers-reduced-motion: reduce){ .logo .l-contorno{animation:none; opacity:0} .logo .l-tinta{animation:none} }

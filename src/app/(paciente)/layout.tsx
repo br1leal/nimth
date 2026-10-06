@@ -2,9 +2,22 @@ import type { Metadata, Viewport } from "next";
 import { fontes, themeColor } from "../fontes";
 import "../globals.css";
 
+const base = process.env.NEXT_PUBLIC_SITE_URL || "https://nimth.vercel.app";
+
+/** Prévia do link (WhatsApp, iMessage etc.): título da marca e a estrelinha da Alegria. */
 export const metadata: Metadata = {
-  title: "Nimth · Ficha de cadastro",
-  description: "Ficha de cadastro do paciente, com personagens que acolhem cada emoção.",
+  metadataBase: new URL(base),
+  title: "Nimth.Psico | Ficha de Cadastro",
+  description: "Preencha sua ficha antes da primeira sessão. Leva poucos minutos.",
+  openGraph: {
+    title: "Nimth.Psico | Ficha de Cadastro",
+    description: "Preencha sua ficha antes da primeira sessão. Leva poucos minutos.",
+    siteName: "Nimth.Psico",
+    type: "website",
+    locale: "pt_BR",
+    images: [{ url: "/og-ficha.png", width: 1200, height: 630, alt: "Alegria, a estrelinha do nimth" }],
+  },
+  twitter: { card: "summary_large_image", images: ["/og-ficha.png"] },
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor };

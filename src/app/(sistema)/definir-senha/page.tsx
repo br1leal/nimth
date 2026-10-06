@@ -6,6 +6,12 @@ import AuthCard, { Aviso } from "@/components/painel/AuthCard";
 import Icon from "@/components/Icon";
 import { supabase, semConfig } from "@/lib/supabase";
 
+/** CRP no formato 00/000000: só números, a barra entra sozinha depois da região. */
+const mascaraCrp = (v: string) => {
+  const d = v.replace(/\D/g, "").slice(0, 8);
+  return d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d;
+};
+
 /**
  * Aceitar convite ou trocar senha. O link do e-mail traz a sessão;
  * no primeiro acesso também pede nome e CRP.
@@ -81,9 +87,9 @@ export default function DefinirSenha() {
           <Label>Nome completo</Label>
           <Input placeholder="Como aparece para os pacientes" />
         </TextField>
-        <TextField value={crp} onChange={setCrp} name="crp">
+        <TextField value={crp} onChange={v => setCrp(mascaraCrp(v))} name="crp">
           <Label>CRP</Label>
-          <Input placeholder="00/000000" />
+          <Input placeholder="00/000000" inputMode="numeric" maxLength={9} />
         </TextField>
       </>}
       <TextField value={senha} onChange={setSenha} type="password" autoComplete="new-password" name="senha">
