@@ -23,16 +23,20 @@ export default function Especialidades({ id, value, onChange, invalid, described
   const [q, setQ] = useState("");
   const [ativo, setAtivo] = useState(0);
   const [aviso, setAviso] = useState("");
+  const [foco, setFoco] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const lista = useId();
 
-  const sugestoes = useMemo(() => buscarEspecialidades(q, value), [q, value]);
   const texto = q.trim();
   const jaTem = (n: string) => value.some(v => semAcento(v) === semAcento(n));
+  const comuns = MAIS_COMUNS.filter(n => !jaTem(n));
+  // campo vazio e em foco: a lista abre com as mais comuns; digitando, filtra (comuns primeiro)
+  const sugestoes = useMemo(() => texto ? buscarEspecialidades(q, value) : [], [q, value, texto]);
   // opção de adicionar o que a pessoa escreveu, quando nada da lista combina
   const livre = !sugestoes.length && texto.length >= 3 && !nomeOficial(texto) && !jaTem(texto) ? texto : null;
-  const opcoes = [...sugestoes, ...(livre ? [`__livre__${livre}`] : [])];
-  const aberto = texto.length > 0;
+  const vazio = !texto;
+  const opcoes = vazio ? comuns : [...sugestoes, ...(livre ? [`__livre__${livre}`] : [])];
+  const aberto = texto.length > 0 || (foco && comuns.length > 0);
 
   function adicionar(nome: string) {
     const n = nomeOficial(nome) ?? nome.trim().replace(/^./, c => c.toUpperCase());
@@ -51,17 +55,19 @@ export default function Especialidades({ id, value, onChange, invalid, described
   function onKey(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === "ArrowDown" && aberto) { e.preventDefault(); setAtivo(a => Math.min(a + 1, opcoes.length - 1)); }
     else if (e.key === "ArrowUp" && aberto) { e.preventDefault(); setAtivo(a => Math.max(a - 1, 0)); }
+    else if (e.key === "Enter" && !texto) {
+      e.preventDefault();
+      if (aberto && opcoes[ativo]) adicionar(opcoes[ativo]);
+    }
     else if (e.key === "Enter" || e.key === "," || e.key === "Tab" && texto) {
-      if (!texto) { if (e.key === "Enter") e.preventDefault(); return; }
+      if (!texto) return;
       e.preventDefault();
       const o = opcoes[ativo];
       adicionar(o ? o.replace(/^__livre__/, "") : texto);
     }
     else if (e.key === "Backspace" && !q && value.length) remover(value[value.length - 1]);
-    else if (e.key === "Escape") setQ("");
+    else if (e.key === "Escape") { if (q) setQ(""); else inputRef.current?.blur(); }
   }
-
-  const comuns = MAIS_COMUNS.filter(n => !jaTem(n));
 
   return (
     <div className="esp">
@@ -80,13 +86,15 @@ export default function Especialidades({ id, value, onChange, invalid, described
           aria-activedescendant={aberto && opcoes[ativo] ? `${lista}-${ativo}` : undefined}
           aria-invalid={invalid || undefined} aria-describedby={describedBy}
           value={q} onChange={e => { setQ(e.target.value); setAtivo(0); }} onKeyDown={onKey}
-          onBlur={() => { if (texto && nomeOficial(texto)) adicionar(texto); }}
+          onFocus={() => { setFoco(true); setAtivo(0); }}
+          onBlur={() => { setFoco(false); if (texto && nomeOficial(texto)) adicionar(texto); }}
           placeholder={value.length ? "Mais alguma?" : "Digite: psiquiatra, endócrino…"}
         />
       </div>
 
       {aberto && (
-        <ul className="esp-lista" id={lista} role="listbox" aria-label="Especialidades">
+        <ul className="esp-lista" id={lista} role="listbox" aria-label={vazio ? "Mais comuns" : "Especialidades"}>
+          {vazio && <li className="esp-titulo" role="presentation">Mais comuns</li>}
           {opcoes.map((o, i) => {
             const eLivre = o.startsWith("__livre__"), nome = o.replace(/^__livre__/, "");
             return (

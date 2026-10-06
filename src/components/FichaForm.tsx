@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import Especialidades from "@/components/Especialidades";
+import { exigeMedico } from "@/lib/especialidades";
 import { supabase, semConfig, TEXTO_LGPD } from "@/lib/supabase";
 
 /**
@@ -45,6 +46,11 @@ const maskPhone = (v: string) => {
   return n.length > cut ? `(${ddd}) ${n.slice(0, cut)}-${n.slice(cut)}` : `(${ddd}) ${n}`;
 };
 const validPhone = (v: string) => { const n = digits(v).length; return n === 10 || n === 11; };
+/* contato do médico: telefone (com máscara automática) ou e-mail */
+const maskContato = (v: string) => (/[a-zA-Z@]/.test(v) ? v : maskPhone(v));
+const validContato = (v: string) => (v.includes("@") ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) : validPhone(v));
+type Doc = { nome: string; contato: string };
+type ErroDoc = { nome?: string; contato?: string };
 function validDate(v: string) {
   const m = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/); if (!m) return false;
   const [d, mo, y] = [+m[1], +m[2], +m[3]], dt = new Date(y, mo - 1, d);
@@ -100,23 +106,49 @@ function YesNo({ id, label, value, error, onChange }: { id: string; label: strin
   );
 }
 
-/** Nome e contato do médico de uma especialidade: fechado numa linha, abre ao tocar. */
-function MedicoDe({ esp, valor, onChange }: { esp: string; valor?: { nome: string; contato: string }; onChange: (v: { nome: string; contato: string }) => void }) {
+/**
+ * Nome e contato do médico de uma especialidade.
+ * Opcional: fechado numa linha, abre ao tocar. Psiquiatria: sempre aberto e obrigatório.
+ */
+function MedicoDe({ esp, idBase, valor, obrigatorio, erro, onChange }: {
+  esp: string; idBase: string; valor?: Doc; obrigatorio?: boolean; erro?: ErroDoc; onChange: (v: Doc) => void;
+}) {
   const d = valor ?? { nome: "", contato: "" };
-  const [aberto, setAberto] = useState(!!(d.nome || d.contato));
+  const [abriu, setAbriu] = useState(!!(d.nome || d.contato));
+  const aberto = obrigatorio || abriu;
   const nomeRef = useRef<HTMLInputElement>(null);
   const resumo = [d.nome, d.contato].filter(Boolean).join(" · ");
+  const campo = (k: keyof Doc, ph: string, rot: string) => {
+    const id = `${idBase}-${k}`, e = erro?.[k];
+    return (
+      <div className={`field${e ? " has-error" : ""}`}>
+        <input id={id} ref={k === "nome" ? nomeRef : undefined} className="inp" value={d[k]} autoComplete="off"
+          inputMode={k === "contato" && d.contato && !/[a-zA-Z@]/.test(d.contato) ? "tel" : undefined}
+          onChange={ev => onChange({ ...d, [k]: k === "contato" ? maskContato(ev.target.value) : ev.target.value })}
+          placeholder={ph + (obrigatorio ? " *" : "")} aria-label={`${rot} de ${esp}`} aria-required={obrigatorio || undefined}
+          aria-invalid={e ? true : undefined} aria-describedby={e ? `${id}-msg` : undefined} />
+        {e && <p className="msg err" id={`${id}-msg`}><Icon name="alert" className="icon-sm" />{e}</p>}
+      </div>
+    );
+  };
   return (
-    <div className={`esp-doc${aberto ? " aberto" : ""}`}>
-      <button type="button" className="esp-doc-t" aria-expanded={aberto}
-        onClick={() => { setAberto(a => !a); if (!aberto) requestAnimationFrame(() => nomeRef.current?.focus()); }}>
-        <span className="esp-doc-nome">{esp}</span>
-        <span className="esp-doc-acao">{aberto ? "Fechar" : resumo || <><Icon name="plus" className="icon-xs" />Nome e contato</>}</span>
-      </button>
+    <div className={`esp-doc${aberto ? " aberto" : ""}${obrigatorio ? " obrig" : ""}`}>
+      {obrigatorio ? (
+        <div className="esp-doc-t">
+          <span className="esp-doc-nome">{esp}</span>
+          <span className="esp-doc-acao">Obrigatório</span>
+        </div>
+      ) : (
+        <button type="button" className="esp-doc-t" aria-expanded={aberto}
+          onClick={() => { setAbriu(a => !a); if (!aberto) requestAnimationFrame(() => nomeRef.current?.focus()); }}>
+          <span className="esp-doc-nome">{esp}</span>
+          <span className="esp-doc-acao">{aberto ? "Fechar" : resumo || <><Icon name="plus" className="icon-xs" />Nome e contato</>}</span>
+        </button>
+      )}
       {aberto && (
         <div className="esp-doc-campos">
-          <input ref={nomeRef} className="inp" value={d.nome} onChange={e => onChange({ ...d, nome: e.target.value })} placeholder="Nome do(a) médico(a)" aria-label={`Nome do médico de ${esp}`} autoComplete="off" />
-          <input className="inp" value={d.contato} onChange={e => onChange({ ...d, contato: e.target.value })} placeholder="Telefone ou e-mail" aria-label={`Contato do médico de ${esp}`} autoComplete="off" />
+          {campo("nome", "Nome do(a) médico(a)", "Nome do médico")}
+          {campo("contato", "Telefone ou e-mail", "Contato do médico")}
         </div>
       )}
     </div>
@@ -127,6 +159,7 @@ export default function FichaForm({ slug, onEnviado }: { slug?: string; onEnviad
   const [envio, setEnvio] = useState<"idle" | "sending" | "done">("idle");
   const [v, setV] = useState<Values>(EMPTY);
   const [err, setErr] = useState<Partial<Record<Key, string>>>({});
+  const [errDoc, setErrDoc] = useState<Record<string, ErroDoc>>({});
   const [cepStatus, setCepStatus] = useState<CepStatus>("idle");
   const [toast, setToast] = useState("");
   const cepReq = useRef(0), toastT = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -176,12 +209,34 @@ export default function FichaForm({ slug, onEnviado }: { slug?: string; onEnviad
     return e;
   }
 
+  /** Psiquiatria exige nome e contato; nas outras, se a pessoa escreveu um contato, ele precisa estar certo. */
+  function validarMedicos() {
+    const out: Record<string, ErroDoc> = {};
+    if (v.medico !== "sim") return out;
+    for (const x of v.esp) {
+      const d = v.docs[x] ?? { nome: "", contato: "" }, e: ErroDoc = {};
+      if (exigeMedico(x)) {
+        if (!d.nome.trim()) e.nome = "Escreva o nome do(a) psiquiatra";
+        if (!d.contato.trim()) e.contato = "Precisamos de um telefone ou e-mail";
+      }
+      if (d.contato.trim() && !validContato(d.contato)) e.contato = d.contato.includes("@") ? "E-mail inválido" : "Telefone incompleto";
+      if (e.nome || e.contato) out[x] = e;
+    }
+    return out;
+  }
+
   function onSubmit(ev: React.FormEvent) {
     ev.preventDefault();
-    const e = validate(); setErr(e);
-    const first = ORDER.find(k => e[k]);
+    const e = validate(), ed = validarMedicos(); setErr(e); setErrDoc(ed);
+    // ordem da tela: campos até a especialidade, depois os médicos, depois o consentimento
+    const ids = ORDER.flatMap(k => {
+      const proprio = e[k] ? [`f-${k}`] : [];
+      if (k !== "esp") return proprio;
+      return [...proprio, ...v.esp.flatMap((x, i) => (["nome", "contato"] as const).filter(c => ed[x]?.[c]).map(c => `f-doc-${i}-${c}`))];
+    });
+    const first = ids[0];
     if (first) {
-      const el = document.getElementById(`f-${first}`);
+      const el = document.getElementById(first);
       el?.scrollIntoView({ behavior: "smooth", block: "center" });
       (el?.querySelector("input") ?? el)?.focus({ preventScroll: true });
       say("Confira os campos destacados");
@@ -327,8 +382,14 @@ export default function FichaForm({ slug, onEnviado }: { slug?: string; onEnviad
               </Field>
               {v.esp.length > 0 && (
                 <div className="esp-docs">
-                  <p className="rotulo">Se souber, quem acompanha você <span>(opcional)</span></p>
-                  {v.esp.map(x => <MedicoDe key={x} esp={x} valor={v.docs[x]} onChange={d => set("docs", { ...v.docs, [x]: d })} />)}
+                  <p className="rotulo">
+                    {v.esp.some(exigeMedico) ? "Quem acompanha você" : "Se souber, quem acompanha você"}{" "}
+                    <span>{v.esp.every(exigeMedico) ? "" : v.esp.some(exigeMedico) ? "(obrigatório na psiquiatria, opcional nas demais)" : "(opcional)"}</span>
+                  </p>
+                  {v.esp.map((x, i) => (
+                    <MedicoDe key={x} esp={x} idBase={`f-doc-${i}`} valor={v.docs[x]} obrigatorio={exigeMedico(x)} erro={errDoc[x]}
+                      onChange={d => { set("docs", { ...v.docs, [x]: d }); if (errDoc[x]) setErrDoc(p => ({ ...p, [x]: {} })); }} />
+                  ))}
                 </div>
               )}
             </div>

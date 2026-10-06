@@ -47,8 +47,11 @@ export const ESPECIALIDADES: Especialidade[] = [
   { nome: "Homeopatia", apelidos: ["homeopata"] },
 ];
 
-/** As que mais aparecem num consultório de psicologia: atalhos de um toque. */
-export const MAIS_COMUNS = ["Psiquiatria", "Clínica geral", "Endocrinologia", "Neurologia", "Ginecologia e obstetrícia", "Cardiologia"];
+/** As que mais aparecem num consultório de psicologia, nesta ordem: primeiras opções da lista e atalhos de um toque. */
+export const MAIS_COMUNS = ["Psiquiatria", "Endocrinologia", "Neurologia", "Clínica geral", "Ginecologia e obstetrícia", "Cardiologia", "Gastroenterologia", "Geriatria"];
+
+/** Psiquiatria (inclusive a da infância): nome e contato do médico são obrigatórios. */
+export const exigeMedico = (nome: string) => semAcento(nome).startsWith("psiquiatria");
 
 export const semAcento = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 
@@ -67,12 +70,14 @@ export function buscarEspecialidades(q: string, fora: string[] = [], limite = 6)
     const p =
       n.startsWith(t) ? 0 :
       ap.some(a => a.startsWith(t)) ? 1 :
-      n.split(/\s+/).some(w => w.startsWith(t)) ? 2 :
+      n.split(/\s+/).some(w => w.length > 2 && w.startsWith(t)) ? 2 :
       n.includes(t) ? 3 :
       ap.some(a => a.includes(t)) ? 4 : -1;
-    if (p >= 0) pontos.push([e.nome, p]);
+    if (p >= 0 && (t.length > 1 || p <= 2)) pontos.push([e.nome, p]); // com 1 letra, só o que começa com ela
   }
-  return pontos.sort((a, b) => a[1] - b[1]).slice(0, limite).map(([n]) => n);
+  // no mesmo nível de acerto, as mais comuns vêm primeiro
+  const peso = (n: string) => { const i = MAIS_COMUNS.indexOf(n); return i < 0 ? 99 : i; };
+  return pontos.sort((a, b) => a[1] - b[1] || peso(a[0]) - peso(b[0])).slice(0, limite).map(([n]) => n);
 }
 
 /** Nome oficial se o texto bater exatamente com um nome ou apelido ("endocrino" vira "Endocrinologia"). */

@@ -302,6 +302,11 @@ html.ds .button--primary::before, html.ds .button--primary::after{
 .esp-op mark{background:none; color:inherit; font-weight:600}
 .esp-op.livre{color:var(--ink-2)} .esp-op.livre .icon{opacity:1}
 .esp-op.livre.on{color:var(--brand-ink)}
+.esp-titulo{padding:6px 14px 4px; font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3)}
+.esp-doc.obrig{background:color-mix(in oklab, var(--brand-soft) 55%, transparent)}
+.esp-doc.obrig .esp-doc-t{cursor:default}
+.esp-doc.obrig .esp-doc-acao{font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--brand-ink)}
+.esp-doc-campos .field{gap:4px}
 .esp-vazio{padding:10px 14px; font-size:13.5px; color:var(--ink-3)}
 .esp-comuns{display:flex; flex-wrap:wrap; gap:6px}
 .esp-atalho{display:inline-flex; align-items:center; gap:5px; height:34px; padding:0 13px 0 10px; border-radius:999px; border:1px dashed var(--line); background:none; color:var(--ink-2); font:inherit; font-size:13.5px; cursor:pointer; transition:background .15s, color .15s, border-color .15s, transform .15s}
