@@ -29,16 +29,21 @@ function makeChar(key, opts={}){
   const cx=(ex[0]+ex[1])/2, mouthY=ey[0]+r*1.6;
   const uid=key+Math.random().toString(36).slice(2,6);
   const stroke=c=>`fill="none" style="stroke:${c}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"`;
-  const ax=L.armAt[0]*10, ay=L.armAt[1]/100*H;
+  const ax=(L.armAt?.[0]||0)*10, ay=(L.armAt?.[1]||0)/100*H;
 
   /* membros atrás do corpo */
   const limbs=document.createElementNS(NS,'svg'); limbs.setAttribute('viewBox',`0 0 ${W} ${H}`); limbs.setAttribute('class','limbs');
   let lm='';
   if(L.leg&&L.leg!=='lotus') L.legAt.forEach((p,i)=>{ lm+=`<g transform="translate(${p[0]*10} ${p[1]/100*H}) scale(${i?-1:1} 1)"><g class="leg"><path d="${LEGS[L.leg](u)}" ${stroke('var(--limb)')}/></g></g>`; });
-  if(L.arm!=='crossed') [ax, W-ax].forEach((x,i)=>{ lm+=`<g transform="translate(${x} ${ay}) scale(${i?-1:1} 1)"><g class="arm"><path d="${ARMS[L.arm](au)}" ${stroke('var(--limb)')}/></g></g>`; });
+  if(L.arm!=='crossed'&&L.arm!=='none') [ax, W-ax].forEach((x,i)=>{ lm+=`<g transform="translate(${x} ${ay}) scale(${i?-1:1} 1)"><g class="arm"><path d="${ARMS[L.arm](au)}" ${stroke('var(--limb)')}/></g></g>`; });
   limbs.innerHTML=lm; el.appendChild(limbs);
 
   const img=document.createElement('img'); img.src=d.img; img.alt=d.name; img.draggable=false; el.appendChild(img);
+  // braços que fazem parte do desenho (Alegria): cópias recortadas da imagem que giram no ombro
+  const armImgs=[];
+  if(d.imgArms){ img.style.clipPath=`polygon(${d.imgArms.body})`;
+    ['L','R'].forEach(sd=>{ const A=d.imgArms[sd], im=document.createElement('img'); im.src=d.img; im.alt=''; im.draggable=false; im.className='arm-img';
+      im.style.clipPath=`polygon(${A.poly})`; im.style.transformOrigin=`${A.pivot[0]}% ${A.pivot[1]}%`; el.appendChild(im); armImgs.push(im); }); }
 
   /* rosto e elementos na frente */
   const face=document.createElementNS(NS,'svg'); face.setAttribute('viewBox',`0 0 ${W} ${H}`); face.setAttribute('class','face');
@@ -53,7 +58,6 @@ function makeChar(key, opts={}){
   ex.forEach((x,i)=>{ const y=ey[i], id=uid+i;
     s+=`<defs><clipPath id="${id}"><ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r*1.1}"/></clipPath></defs>
     <g class="eye" data-x="${x}" data-y="${y}">
-      <ellipse cx="${x}" cy="${y+r*.22}" rx="${r*1.04}" ry="${r*1.14}" fill="rgba(30,24,48,.2)"/>
       <ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r*1.1}" fill="#FFFFFF"/>
       <g clip-path="url(#${id})">
         <g class="pupil" data-x="${x}" data-y="${y+r*.12}"><circle cx="${x}" cy="${y+r*.12}" r="${r*.64*f.pupil}" fill="${INK}"/><circle cx="${x+r*.22}" cy="${y-r*.14}" r="${r*.2}" fill="#fff"/><circle cx="${x-r*.12}" cy="${y+r*.32}" r="${r*.07}" fill="#fff" opacity=".7"/></g>
@@ -75,6 +79,8 @@ function makeChar(key, opts={}){
     grumpy:`<path d="M${cx-mw*.8} ${mouthY+r*.22} Q${cx} ${mouthY-r*.22} ${cx+mw*.8} ${mouthY+r*.22}" fill="none" stroke="${INK}" stroke-width="${fw*1.1}" stroke-linecap="round"/>`
   }[f.mouth];
   s+=`<g class="mouth" data-x="${cx}" data-y="${mouthY}">${M}</g>`;
+  // sorriso aberto só quando reage (ex.: Alegria sorri de leve parada e ri ao ser tocada)
+  if(f.grinOnReact) s+=`<g class="grin" opacity="0" data-x="${cx}" data-y="${mouthY}"><path d="M${cx-mw*1.3} ${mouthY} Q${cx} ${mouthY+r*1.1} ${cx+mw*1.3} ${mouthY} Z" fill="${INK}" stroke="${INK}" stroke-width="${fw*.6}" stroke-linejoin="round"/><path d="M${cx-mw*.8} ${mouthY+r*.55} Q${cx} ${mouthY+r*1.0} ${cx+mw*.8} ${mouthY+r*.55} Z" fill="#FF8FA3"/></g>`;
   // sorrisinho de despedida (usado no tchau ao rolar a página)
   if(f.mouth!=='grin') s+=`<g class="smile" opacity="0"><path d="M${cx-mw} ${mouthY-r*.05} Q${cx} ${mouthY+r*.8} ${cx+mw} ${mouthY-r*.05}" fill="none" stroke="${INK}" stroke-width="${fw}" stroke-linecap="round"/></g>`;
   if(f.tear){
@@ -88,8 +94,8 @@ function makeChar(key, opts={}){
   const c={key, el, d, r, img, W, H,
     eyes:[...face.querySelectorAll('.eye')], pupils:[...face.querySelectorAll('.pupil')], lids:[...face.querySelectorAll('.lid')],
     arms:[...limbs.querySelectorAll('.arm')], legs:[...limbs.querySelectorAll('.leg')],
-    mouth:face.querySelector('.mouth'), smile:face.querySelector('.smile'), brows:face.querySelector('.brows'), sweat:face.querySelector('.sweat'),
-    tears:face.querySelector('.tears'), tearRest:face.querySelector('.tear-rest'), smoke:face.querySelector('.smoke'), crossed:face.querySelector('.crossed'),
+    mouth:face.querySelector('.mouth'), grin:face.querySelector('.grin'), smile:face.querySelector('.smile'), brows:face.querySelector('.brows'), sweat:face.querySelector('.sweat'),
+    armImgs, tears:face.querySelector('.tears'), tearRest:face.querySelector('.tear-rest'), smoke:face.querySelector('.smoke'), crossed:face.querySelector('.crossed'),
     look:{x:0,y:0}, blinkStart:-1, nextBlink:1500+Math.random()*2500, seed:Math.random()*10, phase:Math.random()*6,
     energy:.3, reactT:-1e9, shiverT:-1e9, nextShiver:3000+Math.random()*4000, shrugT:-1e9, nextShrug:2500+Math.random()*3000,
     drag:false, ox:0, oy:0, vx:0, vy:0, sx0:0, sy0:0, moved:0, pid:null, static:false, ...opts};
@@ -207,10 +213,19 @@ function frame(now){
     if(byeE && c.liftR!=null){ const w=Math.sin((now-c.byeT)/1000*14)*22; aR=aR*(1-byeE)+(c.liftR+w)*byeE; aL=aL*(1-byeE); }
     if(c.smile){ c.smile.setAttribute('opacity',byeE.toFixed(2)); c.mouth.setAttribute('opacity',(1-byeE).toFixed(2)); }
     if(c.arms[0]){ c.arms[0].setAttribute('transform',`rotate(${aL.toFixed(1)})`); c.arms[1].setAttribute('transform',`rotate(${aR.toFixed(1)}) scale(${scR.toFixed(3)})`); }
+    // braços do desenho: balançam parados, sobem e acenam ao reagir, um acena no tchau
+    if(c.armImgs.length){ const sw0=reduce?0:Math.sin(t*3+c.seed)*6*amp;
+      let L=sw0, Rr=-sw0;
+      if(R&&!reduce){ const w=Math.abs(Math.sin(p*Math.PI*4)); L+=14+w*22; Rr-=14+w*22; }
+      if(c.drag){ L+=20; Rr-=20; }
+      if(byeE){ const w=Math.sin((now-c.byeT)/1000*14)*16; Rr=Rr*(1-byeE)+(-38+w)*byeE; }
+      c.armImgs[0].style.transform=`rotate(${L.toFixed(1)}deg)`; c.armImgs[1].style.transform=`rotate(${Rr.toFixed(1)}deg)`; }
     if(c.legs[0]){ c.legs[0].setAttribute('transform',`rotate(${lL.toFixed(1)})`); c.legs[1].setAttribute('transform',`rotate(${lR.toFixed(1)})`); }
 
     // boca da alegria ri
-    if(mood==='joy'){ const lf=R?1+.5*Math.abs(Math.sin(p*Math.PI*7))*(1-p*.5):1; const x=c.mouth.dataset.x, y=c.mouth.dataset.y; c.mouth.setAttribute('transform', lf===1?'':`translate(${x} ${y}) scale(${(1+(lf-1)*.3).toFixed(3)} ${lf.toFixed(3)}) translate(${-x} ${-y})`); }
+    if(mood==='joy'){ const g=c.grin?(R?env(p,.08,.3):0):1, m=c.grin||c.mouth;
+      if(c.grin){ c.grin.setAttribute('opacity',g.toFixed(2)); c.mouth.setAttribute('opacity',((1-g)*(1-byeE)).toFixed(2)); }
+      const lf=R?1+.5*Math.abs(Math.sin(p*Math.PI*7))*(1-p*.5):1; const x=m.dataset.x, y=m.dataset.y; m.setAttribute('transform', lf===1?'':`translate(${x} ${y}) scale(${(1+(lf-1)*.3).toFixed(3)} ${lf.toFixed(3)}) translate(${-x} ${-y})`); }
     // gota de suor cai
     if(c.sweat){ if(R){ const q=ease(Math.min(1,p/.75)); c.sweat.setAttribute('transform',`translate(0 ${(q*c.r*3.2).toFixed(1)})`); c.sweat.setAttribute('opacity',(p<.75?1-q*.9:ease((p-.75)/.25)).toFixed(2)); if(p>.75) c.sweat.setAttribute('transform',''); } else { c.sweat.setAttribute('transform',''); c.sweat.setAttribute('opacity','1'); } }
     // lágrimas caem
@@ -450,7 +465,7 @@ form.addEventListener('scroll', onFormScroll, {passive:true});
 function start(){ hidePeek(); intro.classList.add('out'); form.classList.add('in'); form.scrollTop=0; }
 $('startBtn').onclick=start;
 /* abertura: depois que o logo se monta no centro, ele sobe e o resto da tela aparece */
-const bootT=setTimeout(()=>{ intro.classList.remove('boot'); setTimeout(peek, 700); }, reduce?0:1500);
+const bootT=setTimeout(()=>{ intro.classList.remove('boot'); setTimeout(peek, 700); }, reduce?0:2200);
 intro.onpointerdown=e=>{ lastTouch=performance.now(); if(intro.classList.contains('out')||intro.classList.contains('boot')||e.target.closest('button')) return; if(peekers.length) hidePeek(); spawn(e.clientX, e.clientY); };
 $('back').onclick=()=>{ intro.classList.remove('out'); form.classList.remove('in'); };
 

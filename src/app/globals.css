@@ -38,9 +38,10 @@ body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); 
 .char img{display:block; width:100%; height:auto; pointer-events:none; -webkit-user-drag:none}
 .char svg{position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none}
 /* leve sombra nos traços (olhos, sobrancelhas, boca, braços) */
-.char svg.face,.char svg.limbs{filter:drop-shadow(0 2px 1.6px rgba(30,24,48,.24))}
+.char svg.limbs{filter:drop-shadow(0 2px 1.6px rgba(30,24,48,.2))}
 .char svg.limbs{z-index:0}
 .char img{position:relative; z-index:1}
+.char img.arm-img{position:absolute; left:0; top:0; width:100%; z-index:1}
 .char svg.face{z-index:2}
 .mini .char{position:relative}
 .char .body{transform-origin:50% 100%}
@@ -61,11 +62,12 @@ body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); 
   transition:top .85s cubic-bezier(.65,0,.25,1), translate .85s cubic-bezier(.65,0,.25,1)}
 .logo{width:clamp(104px, 28cqw, 128px); height:auto; overflow:visible; color:var(--ink); transition:width .85s cubic-bezier(.65,0,.25,1)}
 /* abertura: o logo aparece sozinho no centro, letra por letra, e depois sobe para o topo; o resto entra em seguida */
-.logo path{transform-box:fill-box; transform-origin:50% 100%; animation:letterIn .7s cubic-bezier(.2,.8,.2,1) both}
-.logo .l-n{animation-delay:.05s} .logo .l-i{animation-delay:.13s} .logo .l-m{animation-delay:.21s} .logo .l-t{animation-delay:.29s} .logo .l-h{animation-delay:.37s}
-.logo .l-dot{transform-origin:50% 50%; animation:dotIn .6s cubic-bezier(.34,1.8,.64,1) .72s both}
-@keyframes letterIn{from{opacity:0; transform:translateY(38%) scaleY(.85); filter:blur(6px)}}
-@keyframes dotIn{from{opacity:0; transform:translateY(-160%) scale(.2)} 60%{opacity:1}}
+/* escrita do logo: a máscara revela o desenho traço a traço, como uma linha contínua (só no logo grande) */
+.l-tinta{fill:currentColor}
+.l-traco{stroke-dasharray:1 2; stroke-dashoffset:0}
+.logo .l-traco{animation:escrever var(--dur) cubic-bezier(.45,.05,.55,.95) var(--atraso) both, encher .4s ease 1.95s both}
+@keyframes escrever{from{stroke-dashoffset:1.001}}
+@keyframes encher{to{stroke-width:44}}
 #intro.boot .brand{top:50%; translate:0 -50%}
 #intro.boot .logo{width:min(62cqw, 290px)}
 #intro .copy > *, #intro .tap-hint{transition:opacity .6s ease, translate .7s cubic-bezier(.2,.8,.2,1)}
@@ -146,7 +148,7 @@ html.ds .button--primary::before, html.ds .button--primary::after{
 .inner{max-width:520px; margin:0 auto; padding-inline:20px; padding-block:calc(22px + env(safe-area-inset-top,0px)) 56px; display:grid; gap:24px}
 .back-logo{border:0; background:none; padding:6px 4px; margin:-6px -4px; cursor:pointer; color:var(--ink); display:flex}
 .logo-sm{width:66px; height:auto; display:block}
-.logo-sm path{animation:none}
+.logo-sm .l-traco{animation:none}
 .top{display:flex; justify-content:space-between; align-items:center}
 .back{display:inline-flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--card-line); border-radius:var(--r-pill); height:40px; padding:0 16px 0 12px; font-size:13px; cursor:pointer}
 .pill{font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; padding:9px 14px; border-radius:999px; background:var(--brand-soft); color:var(--brand-ink)}
@@ -287,3 +289,4 @@ html.ds .button--primary::before, html.ds .button--primary::after{
 .enviado p{margin:0; color:var(--ink-2); max-width:30ch; line-height:1.45}
 .btn:disabled{opacity:.7; cursor:progress}
 .icon.spin{animation:spin .8s linear infinite}
+@media (prefers-reduced-motion: reduce){ .logo .l-traco{animation:none} }

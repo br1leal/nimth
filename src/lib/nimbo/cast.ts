@@ -22,9 +22,13 @@ export const LEGS={
 };
 
 export const CAST={
-  alegria:{name:'Alegria', line:'Leve, com vontade de sorrir', img:'/chars/alegria.png', ratio:1.1578,
-    eyes:[[39,50],[57,50]], r:9.5, face:{lid:0, lidAngle:0, brow:{y:-.6, angle:-8, arch:1.2}, pupil:1, mouth:'grin', cheeks:1},
-    limbs:{arm:'up', armLen:1.05, armAt:[12,56], leg:'step', legAt:[[42,84],[58,84]], tone:'#F2E07A'}, c:{e1:'#FFEBCB',e2:'#FFBE7A',e3:'#B35712'}, speed:1.6, mood:'joy', react:1200},
+  alegria:{name:'Alegria', line:'Leve, com vontade de sorrir', img:'/chars/alegria.png', ratio:.9172,
+    eyes:[[39,46],[61,46]], r:10, face:{lid:0, lidAngle:0, brow:{y:-.6, angle:-8, arch:1.2}, pupil:1, mouth:'soft', grinOnReact:1, cheeks:1},
+    limbs:{arm:'none', leg:'step', legAt:[[38,95],[62,95]], tone:'#FFEA85'},
+    /* os braços fazem parte do desenho: recortamos as duas pontas laterais e giramos no ombro */
+    imgArms:{body:'0 0,100% 0,100% 28%,86% 28%,86% 60%,100% 60%,100% 100%,0 100%,0 64%,14% 64%,14% 30%,0 30%',
+      L:{poly:'0 30%,22% 30%,22% 64%,0 64%', pivot:[17,47]}, R:{poly:'78% 28%,100% 28%,100% 60%,78% 60%', pivot:[83,43]}},
+    c:{e1:'#FFEBCB',e2:'#FFBE7A',e3:'#B35712'}, speed:1.6, mood:'joy', react:1200},
   calma:{name:'Calma', line:'Respirando no meu ritmo', img:'/chars/calma.png', ratio:.8531,
     eyes:[[37,50],[55,50]], r:8.8, face:{lid:.6, lidAngle:0, brow:{y:-.3, angle:-4, arch:.8}, pupil:.95, mouth:'soft', cheeks:.6},
     limbs:{arm:'mudra', armLen:1.3, armAt:[6,68], leg:'lotus', legAt:[[33,86],[67,86]], tone:'#A98BF5'}, c:{e1:'#E6DCFF',e2:'#B99BFF',e3:'#4A1FD1'}, speed:.6, mood:'calm', react:3200},
@@ -37,9 +41,9 @@ export const CAST={
   raiva:{name:'Raiva', line:'Com algo me incomodando', img:'/chars/raiva.png', ratio:1.2098,
     eyes:[[41,66],[60,66]], r:9.8, face:{lid:.34, lidAngle:18, brow:{y:-.4, angle:22, arch:0}, pupil:.95, mouth:'grumpy', cheeks:.8, smoke:1},
     limbs:{arm:'hips', armLen:1.45, armAt:[6,70], leg:'wide', legAt:[[38,95],[62,95]], tone:'#F58B78'}, c:{e1:'#FFE2DC',e2:'#FF9E8E',e3:'#B3352A'}, speed:1.4, mood:'angry', react:2200},
-  nimbo:{name:'Neutro', line:'Toque numa emoção abaixo, se quiser', img:'/chars/nimbo.png', ratio:1.825,
-    eyes:[[35,70],[65,70]], r:14, face:{lid:.5, lidAngle:0, brow:{y:-.5, angle:0, arch:.1, one:1}, pupil:1, mouth:'flat', cheeks:0},
-    limbs:{arm:'shrug', armLen:1.25, armAt:[4,54], leg:'plain', legAt:[[36,96],[64,96]], tone:'#DAD6E4'}, c:{e1:'#ECE8F4',e2:'#C7BFDD',e3:'#4E4766'}, speed:1, mood:'meh', react:1200}
+  nimbo:{name:'Neutro', line:'Toque numa emoção abaixo, se quiser', img:'/chars/nimbo.png', ratio:1.2839,
+    eyes:[[36,52],[64,52]], r:12.5, face:{lid:.5, lidAngle:0, brow:{y:-.5, angle:0, arch:.1, one:1}, pupil:1, mouth:'flat', cheeks:0},
+    limbs:{arm:'shrug', armLen:1.3, armAt:[4,60], leg:'plain', legAt:[[36,97],[64,97]], tone:'#E3DFEC'}, c:{e1:'#ECE8F4',e2:'#C7BFDD',e3:'#4E4766'}, speed:1, mood:'meh', react:1200}
 };
 export const ORDER=['alegria','calma','ansiedade','tristeza','raiva','nimbo'];
 export const REASONS={
