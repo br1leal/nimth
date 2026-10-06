@@ -57,7 +57,7 @@ export default function Shell({ children, psi }: { children: ReactNode; psi?: Ps
 
       {/* menu lateral (computador) */}
       <aside className="no-print sticky top-0 hidden h-dvh flex-col gap-8 border-r border-separator px-4 py-6 md:flex">
-        <Link href="/painel" aria-label="Início do painel" className="px-3 text-foreground"><Logo className="h-6 w-auto" /></Link>
+        <Link href="/painel" aria-label="Início do painel" className="px-3 text-foreground"><Logo className="h-8 w-auto" /></Link>
         <nav className="grid gap-1" aria-label="Menu">
           <ItemMenu href="/painel" icon="users" ativo={path.startsWith("/painel")}>Pacientes</ItemMenu>
           <ItemMenu href={fichaLink} icon="external" externo>Ver minha ficha</ItemMenu>
@@ -78,7 +78,7 @@ export default function Shell({ children, psi }: { children: ReactNode; psi?: Ps
       <div className="min-w-0">
         {/* barra do topo (celular) */}
         <header className="no-print sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-separator bg-background/80 px-5 backdrop-blur-xl md:hidden">
-          <Link href="/painel" aria-label="Início do painel" className="text-foreground"><Logo className="h-5 w-auto" /></Link>
+          <Link href="/painel" aria-label="Início do painel" className="text-foreground"><Logo className="h-7 w-auto" /></Link>
           <div className="flex items-center gap-2">
             {primeiro && <span className="text-sm text-muted max-[360px]:hidden">{primeiro}</span>}
             <TemaSwitch />

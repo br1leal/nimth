@@ -314,7 +314,7 @@ export default function FichaForm({ slug }: { slug?: string }) {
             </label>
             {err.lgpd && <p className="msg err"><Icon name="alert" className="icon-sm" />{err.lgpd}</p>}
           </div>
-          <button className="btn btn-icon" type="submit" disabled={envio === "sending"}>{envio === "sending" ? <>Enviando… <Icon name="loader" className="spin" /></> : <>Enviar ficha <Icon name="arrow-right" /></>}</button>
+          <button className="btn btn-icon vidro" type="submit" disabled={envio === "sending"}>{envio === "sending" ? <>Enviando… <Icon name="loader" className="spin" /></> : <>Enviar ficha <Icon name="arrow-right" /></>}</button>
           <p className="note"><Icon name="lock" className="icon-sm" />Seus dados ficam guardados com segurança e só a sua psicóloga tem acesso.</p>
         </div>
       </form>

@@ -15,15 +15,15 @@
   --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:24px; --s-6:32px;
   --ctl-h:50px; --btn-h:54px;
   --danger:#C2412D; --danger-soft:rgba(194,65,45,.12); --ok:#2F8F5B;
-  --gbtn-bg:rgba(255,255,255,.4); --gbtn-ink:#17151C; --gbtn-line:rgba(255,255,255,.9); --gbtn-hi:rgba(255,255,255,.95); --gbtn-shadow:rgba(70,50,140,.45); --gbtn-blob:.95; --gbtn-blend:normal;
+  --vidro-bg:rgba(240,236,255,.5); --vidro-ink:#1B1530; --vidro-line:rgba(255,255,255,.95); --vidro-hi:rgba(255,255,255,.95); --vidro-low:rgba(90,70,200,.22); --vidro-shadow:rgba(90,70,200,.42); --vidro-blob:.95; --vidro-blend:normal;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --bg:#111016; --card:rgba(38,35,48,.72); --card-line:rgba(255,255,255,.08); --field:#1B1922; --line:#2C2936;
-  --ink:#F4F3F7; --ink-2:#AAA6B4; --ink-3:#76727F; --btn:#F4F3F7; --btn-ink:#16141C; --brand-soft:#2E2448; --brand-ink:#C7B0FF; --limb:#DCD7EA; --shadow:rgba(0,0,0,.45); --danger:#FF8A75; --danger-soft:rgba(255,138,117,.14); --ok:#6FD39B; --gbtn-bg:rgba(28,25,34,.78); --gbtn-ink:#F4F3F7; --gbtn-line:rgba(255,255,255,.16); --gbtn-hi:rgba(255,255,255,.12); --gbtn-shadow:rgba(0,0,0,.6); --gbtn-blob:.6; --gbtn-blend:normal; color-scheme:dark; } }
+  --ink:#F4F3F7; --ink-2:#AAA6B4; --ink-3:#76727F; --btn:#F4F3F7; --btn-ink:#16141C; --brand-soft:#2E2448; --brand-ink:#C7B0FF; --limb:#DCD7EA; --shadow:rgba(0,0,0,.45); --danger:#FF8A75; --danger-soft:rgba(255,138,117,.14); --ok:#6FD39B; --vidro-bg:rgba(28,24,44,.72); --vidro-ink:#F4F1FF; --vidro-line:rgba(200,185,255,.24); --vidro-hi:rgba(255,255,255,.14); --vidro-low:rgba(0,0,0,.25); --vidro-shadow:rgba(120,90,255,.38); --vidro-blob:.8; --vidro-blend:soft-light; color-scheme:dark; } }
 :root[data-theme="dark"]{
   --bg:#111016; --card:rgba(38,35,48,.72); --card-line:rgba(255,255,255,.08); --field:#1B1922; --line:#2C2936;
-  --ink:#F4F3F7; --ink-2:#AAA6B4; --ink-3:#76727F; --btn:#F4F3F7; --btn-ink:#16141C; --brand-soft:#2E2448; --brand-ink:#C7B0FF; --limb:#DCD7EA; --shadow:rgba(0,0,0,.45); --danger:#FF8A75; --danger-soft:rgba(255,138,117,.14); --ok:#6FD39B; --gbtn-bg:rgba(28,25,34,.78); --gbtn-ink:#F4F3F7; --gbtn-line:rgba(255,255,255,.16); --gbtn-hi:rgba(255,255,255,.12); --gbtn-shadow:rgba(0,0,0,.6); --gbtn-blob:.6; --gbtn-blend:normal; color-scheme:dark; }
+  --ink:#F4F3F7; --ink-2:#AAA6B4; --ink-3:#76727F; --btn:#F4F3F7; --btn-ink:#16141C; --brand-soft:#2E2448; --brand-ink:#C7B0FF; --limb:#DCD7EA; --shadow:rgba(0,0,0,.45); --danger:#FF8A75; --danger-soft:rgba(255,138,117,.14); --ok:#6FD39B; --vidro-bg:rgba(28,24,44,.72); --vidro-ink:#F4F1FF; --vidro-line:rgba(200,185,255,.24); --vidro-hi:rgba(255,255,255,.14); --vidro-low:rgba(0,0,0,.25); --vidro-shadow:rgba(120,90,255,.38); --vidro-blob:.8; --vidro-blend:soft-light; color-scheme:dark; }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
 /* iPhone: sem o retângulo cinza de toque nem menu de toque longo nos elementos interativos */
 button,.bubble,.mini,.char{-webkit-touch-callout:none; -webkit-user-select:none; user-select:none}
@@ -37,6 +37,8 @@ body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); 
 .char{position:absolute; user-select:none; -webkit-user-select:none; touch-action:none; will-change:transform}
 .char img{display:block; width:100%; height:auto; pointer-events:none; -webkit-user-drag:none}
 .char svg{position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none}
+/* leve sombra nos traços (olhos, sobrancelhas, boca, braços) */
+.char svg.face,.char svg.limbs{filter:drop-shadow(0 2px 1.6px rgba(30,24,48,.24))}
 .char svg.limbs{z-index:0}
 .char img{position:relative; z-index:1}
 .char svg.face{z-index:2}
@@ -57,7 +59,7 @@ body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); 
 /* logotipo no topo */
 .brand{position:absolute; left:0; right:0; top:calc(26px + env(safe-area-inset-top,0px)); display:flex; justify-content:center; pointer-events:none; z-index:1;
   transition:top .85s cubic-bezier(.65,0,.25,1), translate .85s cubic-bezier(.65,0,.25,1)}
-.logo{width:clamp(112px, 30cqw, 140px); height:auto; overflow:visible; color:var(--ink); transition:width .85s cubic-bezier(.65,0,.25,1)}
+.logo{width:clamp(104px, 28cqw, 128px); height:auto; overflow:visible; color:var(--ink); transition:width .85s cubic-bezier(.65,0,.25,1)}
 /* abertura: o logo aparece sozinho no centro, letra por letra, e depois sobe para o topo; o resto entra em seguida */
 .logo path{transform-box:fill-box; transform-origin:50% 100%; animation:letterIn .7s cubic-bezier(.2,.8,.2,1) both}
 .logo .l-n{animation-delay:.05s} .logo .l-i{animation-delay:.13s} .logo .l-m{animation-delay:.21s} .logo .l-t{animation-delay:.29s} .logo .l-h{animation-delay:.37s}
@@ -81,27 +83,57 @@ body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); 
 .tap-ring{position:absolute; left:13px; top:4px; width:14px; height:14px; border-radius:50%; border:2px solid var(--brand); opacity:0; animation:tapring 1.8s ease-out infinite}
 @keyframes tap{0%,55%,100%{transform:translate(0,4px) scale(1)} 25%{transform:translate(0,-1px) scale(.92)} 32%{transform:translate(0,-1px) scale(.92)}}
 @keyframes tapring{0%,22%{opacity:0; transform:scale(.6)} 30%{opacity:.9; transform:scale(1)} 70%,100%{opacity:0; transform:scale(2.6)}}
-/* botão principal: pílula de vidro com um degradê vivo se movendo devagar por dentro (sempre presente, sutil) */
-.copy .start{background:var(--gbtn-bg); color:var(--gbtn-ink); border:1px solid var(--gbtn-line);
-  box-shadow:inset 0 1px 0 var(--gbtn-hi), 0 16px 34px -16px var(--gbtn-shadow); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px)}
-.copy .start::before,.copy .start::after{content:""; position:absolute; inset:-60% -30%; z-index:-1; pointer-events:none; filter:blur(12px); opacity:var(--gbtn-blob)}
-.copy .start::before{background:
-    radial-gradient(34% 60% at 22% 50%, #35D0C3, transparent 75%),
-    radial-gradient(32% 62% at 78% 52%, #4F9BF2, transparent 75%),
-    radial-gradient(26% 50% at 55% 28%, #49A9F5, transparent 75%);
-  animation:flowA 7s ease-in-out infinite alternate}
-.copy .start::after{background:
-    radial-gradient(28% 55% at 42% 72%, #7CC8FA, transparent 75%),
-    radial-gradient(22% 46% at 64% 74%, #8FE8DA, transparent 75%);
-  animation:flowB 9s ease-in-out infinite alternate; mix-blend-mode:var(--gbtn-blend)}
-@keyframes flowA{0%{transform:translate(-8%,-4%) rotate(0deg)} 50%{transform:translate(7%,5%) rotate(18deg)} 100%{transform:translate(-3%,7%) rotate(-12deg)}}
-@keyframes flowB{0%{transform:translate(6%,4%) rotate(0deg)} 50%{transform:translate(-7%,-6%) rotate(-20deg)} 100%{transform:translate(4%,-3%) rotate(14deg)}}
+/* =====================================================================
+   Botão principal (.vidro): pílula de vidro com degradê lilás, roxo, azul
+   e branco (estilo Phantom) se movendo por dentro, e um brilho que passa de tempos em tempos.
+   Usado em: começar a ficha, enviar ficha e nos botões principais do painel
+   (HeroUI variant="primary").
+   ===================================================================== */
+.btn.vidro, .vidro, html.ds .button--primary{
+  position:relative; isolation:isolate; overflow:hidden;
+  background:var(--vidro-bg); color:var(--vidro-ink); border:1px solid var(--vidro-line);
+  box-shadow:inset 0 1px 0 var(--vidro-hi), inset 0 -8px 18px -10px var(--vidro-low), 0 16px 34px -16px var(--vidro-shadow);
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px)}
+.vidro::before, .vidro::after,
+html.ds .button--primary::before, html.ds .button--primary::after{
+  content:""; position:absolute; inset:-70% -35%; z-index:-1; pointer-events:none; filter:blur(12px); opacity:var(--vidro-blob)}
+/* camada 1: verdes (verde-água, menta, verde-claro) */
+.vidro::before, html.ds .button--primary::before{
+  background:
+    radial-gradient(42% 70% at 18% 50%, #AB9FF2, transparent 75%),
+    radial-gradient(38% 70% at 76% 44%, #7FA8FF, transparent 75%),
+    radial-gradient(30% 56% at 50% 24%, #C7B8FF, transparent 75%),
+    radial-gradient(28% 52% at 94% 82%, #8C7BFF, transparent 75%);
+  animation:flowA 5.5s ease-in-out infinite alternate}
+/* camada 2: branco e bege, mais um brilho diagonal que atravessa o botão */
+.vidro::after, html.ds .button--primary::after{
+  background:
+    linear-gradient(105deg, transparent 38%, rgba(255,255,255,.75) 48%, transparent 58%) 0 0 / 300% 100% no-repeat,
+    radial-gradient(20% 42% at 40% 74%, rgba(255,255,255,.9), transparent 75%),
+    radial-gradient(18% 38% at 64% 72%, #BFE3FF, transparent 75%),
+    radial-gradient(14% 30% at 30% 22%, rgba(244,240,255,.9), transparent 75%);
+  mix-blend-mode:var(--vidro-blend);
+  animation:flowB 7s ease-in-out infinite alternate, brilho 4.8s cubic-bezier(.45,0,.2,1) infinite}
+@keyframes flowA{0%{transform:translate(-10%,-6%) rotate(0deg) scale(1)} 50%{transform:translate(9%,6%) rotate(24deg) scale(1.08)} 100%{transform:translate(-4%,8%) rotate(-16deg) scale(.96)}}
+@keyframes flowB{0%{transform:translate(8%,5%) rotate(0deg)} 50%{transform:translate(-9%,-7%) rotate(-24deg)} 100%{transform:translate(5%,-4%) rotate(18deg)}}
+@keyframes brilho{0%,55%{background-position:120% 0, 0 0, 0 0, 0 0} 85%,100%{background-position:-20% 0, 0 0, 0 0, 0 0}}
+.vidro:hover, html.ds .button--primary:hover{box-shadow:inset 0 1px 0 var(--vidro-hi), inset 0 -8px 18px -10px var(--vidro-low), 0 20px 40px -14px var(--vidro-shadow)}
+.vidro:disabled, html.ds .button--primary[data-disabled]{opacity:.7}
 @keyframes ripple{from{transform:scale(1); opacity:.9} to{transform:scale(2.8); opacity:0}}
 .copy .start{position:relative; z-index:4; overflow:hidden; isolation:isolate; pointer-events:auto; margin-top:auto; height:var(--btn-h); padding:0 26px; font-size:16px; display:inline-flex; align-items:center; gap:var(--s-2); transition:transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s}
 .copy .start .icon{transition:transform .2s}
 .copy .start:hover{transform:translateY(-2px)} .copy .start:hover .icon{transform:translateX(3px)}
 .copy .start:active{transform:scale(.97)}
 /* brilho que abre quando uma emoção surge */
+/* espiadinha nas bordas da tela inicial */
+#intro{isolation:isolate}
+.peek-layer{position:absolute; inset:0; z-index:-1; overflow:hidden}
+.peek{position:absolute; z-index:0; pointer-events:none; transition:transform .5s cubic-bezier(.55,0,.85,.35)}
+.peek .char{pointer-events:auto}
+.peek-left{transform:translateX(-80%) rotate(var(--rot))}
+.peek-right{transform:translateX(80%) rotate(var(--rot))}
+.peek-bottom{transform:translateY(90%)}
+.peek.show{transform:rotate(var(--rot)); transition:transform 1s cubic-bezier(.34,1.45,.64,1)}
 .spark{position:absolute; width:12px; height:12px; margin:-6px 0 0 -6px; border-radius:50%; pointer-events:none; background:radial-gradient(circle, var(--c) 0%, transparent 70%); animation:spark .8s cubic-bezier(.2,.7,.3,1) forwards}
 @keyframes spark{from{transform:scale(1); opacity:.95} to{transform:scale(26); opacity:0}}
 .tap{margin-top:10px; text-align:center; font-family:var(--hand); font-weight:500; font-size:22px; letter-spacing:0; color:var(--ink-2); transform:rotate(-2deg); pointer-events:none; animation:breath 2.6s ease-in-out infinite}
@@ -113,7 +145,7 @@ body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); 
 #form.in{transform:none; opacity:1; pointer-events:auto}
 .inner{max-width:520px; margin:0 auto; padding-inline:20px; padding-block:calc(22px + env(safe-area-inset-top,0px)) 56px; display:grid; gap:24px}
 .back-logo{border:0; background:none; padding:6px 4px; margin:-6px -4px; cursor:pointer; color:var(--ink); display:flex}
-.logo-sm{width:76px; height:auto; display:block}
+.logo-sm{width:66px; height:auto; display:block}
 .logo-sm path{animation:none}
 .top{display:flex; justify-content:space-between; align-items:center}
 .back{display:inline-flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--card-line); border-radius:var(--r-pill); height:40px; padding:0 16px 0 12px; font-size:13px; cursor:pointer}
@@ -241,7 +273,7 @@ body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); 
 .theme-knob{position:absolute; left:3px; top:3px; width:24px; height:22px; border-radius:var(--r-pill); background:var(--btn); transition:translate .35s cubic-bezier(.34,1.4,.64,1)}
 .theme .t-sun{color:var(--btn-ink)} .theme.is-dark .t-sun{color:var(--ink-3)}
 .theme.is-dark .t-moon{color:var(--btn-ink)} .theme.is-dark .theme-knob{translate:28px 0}
-@media (prefers-reduced-motion: reduce){ .bubble.burst,.bubble.regrow,.drop{animation:none!important} .swipe-hint .icon-hand,.swipe-hint .chev{animation:none} .swipe-hint .chev{opacity:.7} .tap-hand .icon,.tap-ring,.copy .start::before,.copy .start::after{animation:none} .screen,.mini{transition:none} .tap,.bubble,.tapdot::after{animation:none} .logo path{animation:none} #intro .copy > *,#intro .tap-hint,.brand,.logo{transition:none} }
+@media (prefers-reduced-motion: reduce){ .bubble.burst,.bubble.regrow,.drop{animation:none!important} .swipe-hint .icon-hand,.swipe-hint .chev{animation:none} .swipe-hint .chev{opacity:.7} .tap-hand .icon,.tap-ring,.vidro::before,.vidro::after,html.ds .button--primary::before,html.ds .button--primary::after{animation:none} .screen,.mini{transition:none} .tap,.bubble,.tapdot::after{animation:none} .logo path{animation:none} #intro .copy > *,#intro .tap-hint,.brand,.logo{transition:none} }
 
 /* app em tela cheia e responsivo: no celular ocupa tudo; na web o conteúdo fica centralizado */
 .app{position:fixed; inset:0; overflow:hidden; background:var(--bg); container-type:size; transform:translateZ(0)}

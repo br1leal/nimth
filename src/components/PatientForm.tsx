@@ -45,7 +45,7 @@ export default function PatientForm({ slug }: { slug?: string }) {
         <div className="copy">
           <h1>Que bom ter você aqui.</h1>
           <p className="sub-hand"><span>um cantinho seu,</span> <span>sem pressa e sem julgamento</span></p>
-          <button className="btn start" id="startBtn" type="button">
+          <button className="btn start vidro" id="startBtn" type="button">
             Preencher ficha de cadastro <Icon name="arrow-right" />
           </button>
         </div>

@@ -18,10 +18,12 @@ const INK='#1E1830';
 const drop=(x,y,s)=>`M${x} ${y} c0 0 ${-s} ${s*1.55} ${-s} ${s*2.4} a${s} ${s} 0 0 0 ${s*2} 0 c0 ${-s*.85} ${-s} ${-s*2.4} ${-s} ${-s*2.4} z`;
 
 const chars=[];
+/* personagens altos (ex.: Neutro em pílula) ganham um pouco mais de altura para não ficarem miúdos */
+const alto=r=>Math.min(1.35, Math.sqrt(Math.max(1,r)));
 function makeChar(key, opts={}){
   const d=CAST[key], W=1000, H=Math.round(1000*d.ratio), f=d.face, L=d.limbs;
   const el=document.createElement('div'); el.className='char'; el.dataset.k=key;
-  const r=d.r*10, u=r*1.05, au=r*(L.armLen||1.45), sw=r*.15;
+  const r=d.r*10, u=r*1.05, au=r*(L.armLen||1.45), sw=r*.26, fw=sw; // traço grosso, com personalidade (fw no rosto, sw nos braços e pernas)
   const mid=(d.eyes[0][0]+d.eyes[1][0])/2;
   const ex=d.eyes.map(e=>(mid+(e[0]-mid)*.9)*10), ey=d.eyes.map(e=>e[1]*10);
   const cx=(ex[0]+ex[1])/2, mouthY=ey[0]+r*1.6;
@@ -51,30 +53,30 @@ function makeChar(key, opts={}){
   ex.forEach((x,i)=>{ const y=ey[i], id=uid+i;
     s+=`<defs><clipPath id="${id}"><ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r*1.1}"/></clipPath></defs>
     <g class="eye" data-x="${x}" data-y="${y}">
-      <ellipse cx="${x}" cy="${y+r*.14}" rx="${r*1.03}" ry="${r*1.13}" fill="rgba(0,0,0,.12)"/>
+      <ellipse cx="${x}" cy="${y+r*.22}" rx="${r*1.04}" ry="${r*1.14}" fill="rgba(30,24,48,.2)"/>
       <ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r*1.1}" fill="#FFFFFF"/>
       <g clip-path="url(#${id})">
-        <g class="pupil" data-x="${x}" data-y="${y+r*.12}"><circle cx="${x}" cy="${y+r*.12}" r="${r*.55*f.pupil}" fill="${INK}"/><circle cx="${x+r*.2}" cy="${y-r*.12}" r="${r*.17}" fill="#fff"/><circle cx="${x-r*.12}" cy="${y+r*.32}" r="${r*.07}" fill="#fff" opacity=".7"/></g>
-        <g class="lid" data-x="${x}" data-y="${y}"><rect x="${x-r*1.8}" y="${y-r*3.8}" width="${r*3.6}" height="${r*2.6}" fill="${L.tone}"/><line x1="${x-r*1.8}" y1="${y-r*1.2}" x2="${x+r*1.8}" y2="${y-r*1.2}" stroke="${INK}" stroke-width="${r*.12}" stroke-linecap="round"/></g>
+        <g class="pupil" data-x="${x}" data-y="${y+r*.12}"><circle cx="${x}" cy="${y+r*.12}" r="${r*.64*f.pupil}" fill="${INK}"/><circle cx="${x+r*.22}" cy="${y-r*.14}" r="${r*.2}" fill="#fff"/><circle cx="${x-r*.12}" cy="${y+r*.32}" r="${r*.07}" fill="#fff" opacity=".7"/></g>
+        <g class="lid" data-x="${x}" data-y="${y}"><rect x="${x-r*1.8}" y="${y-r*3.8}" width="${r*3.6}" height="${r*2.6}" fill="${L.tone}"/><line x1="${x-r*1.8}" y1="${y-r*1.2}" x2="${x+r*1.8}" y2="${y-r*1.2}" stroke="${INK}" stroke-width="${r*.22}" stroke-linecap="round"/></g>
       </g>
       <ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r*1.1}" fill="none" stroke="rgba(0,0,0,.08)" stroke-width="${r*.08}"/>
     </g>`;
   });
   const B=f.brow, bw=r*.62, by=ey[0]-r*1.55+B.y*r;
-  const brow=(x,side)=>`<path d="M${x-bw} ${by} Q${x} ${by-(B.arch||0)*r*.5} ${x+bw} ${by}" fill="none" stroke="${INK}" stroke-width="${sw}" stroke-linecap="round" transform="rotate(${B.angle*side} ${x} ${by})"/>`;
-  s+=`<g class="brows">`+brow(ex[0],1)+(B.one?`<path class="brow-up" d="M${ex[1]-bw} ${by-r*.4} Q${ex[1]} ${by-r*.62} ${ex[1]+bw} ${by-r*.4}" fill="none" stroke="${INK}" stroke-width="${sw}" stroke-linecap="round"/>`:brow(ex[1],-1))+`</g>`;
+  const brow=(x,side)=>`<path d="M${x-bw} ${by} Q${x} ${by-(B.arch||0)*r*.5} ${x+bw} ${by}" fill="none" stroke="${INK}" stroke-width="${fw}" stroke-linecap="round" transform="rotate(${B.angle*side} ${x} ${by})"/>`;
+  s+=`<g class="brows">`+brow(ex[0],1)+(B.one?`<path class="brow-up" d="M${ex[1]-bw} ${by-r*.4} Q${ex[1]} ${by-r*.62} ${ex[1]+bw} ${by-r*.4}" fill="none" stroke="${INK}" stroke-width="${fw}" stroke-linecap="round"/>`:brow(ex[1],-1))+`</g>`;
   if(f.cheeks) s+=`<ellipse cx="${ex[0]-r*.95}" cy="${ey[0]+r*1.3}" rx="${r*.8}" ry="${r*.4}" fill="#FF7FA0" opacity="${.38*f.cheeks}"/><ellipse cx="${ex[1]+r*.95}" cy="${ey[1]+r*1.3}" rx="${r*.8}" ry="${r*.4}" fill="#FF7FA0" opacity="${.38*f.cheeks}"/>`;
   const mw=r*.6, M={
-    grin:`<path d="M${cx-mw*1.3} ${mouthY} Q${cx} ${mouthY+r*1.1} ${cx+mw*1.3} ${mouthY} Z" fill="${INK}" stroke="${INK}" stroke-width="${sw*.6}" stroke-linejoin="round"/><path d="M${cx-mw*.8} ${mouthY+r*.55} Q${cx} ${mouthY+r*1.0} ${cx+mw*.8} ${mouthY+r*.55} Z" fill="#FF8FA3"/>`,
-    soft:`<path d="M${cx-mw*.75} ${mouthY} Q${cx} ${mouthY+r*.4} ${cx+mw*.75} ${mouthY}" fill="none" stroke="${INK}" stroke-width="${sw}" stroke-linecap="round"/>`,
-    flat:`<path d="M${cx-mw*.7} ${mouthY} L${cx+mw*.7} ${mouthY}" fill="none" stroke="${INK}" stroke-width="${sw}" stroke-linecap="round"/>`,
-    frown:`<path d="M${cx-mw*.85} ${mouthY+r*.3} Q${cx} ${mouthY-r*.3} ${cx+mw*.85} ${mouthY+r*.3}" fill="none" stroke="${INK}" stroke-width="${sw}" stroke-linecap="round"/>`,
-    wavy:`<path d="M${cx-mw} ${mouthY} Q${cx-mw*.5} ${mouthY-r*.35} ${cx} ${mouthY} Q${cx+mw*.5} ${mouthY+r*.35} ${cx+mw} ${mouthY}" fill="none" stroke="${INK}" stroke-width="${sw}" stroke-linecap="round"/>`,
-    grumpy:`<path d="M${cx-mw*.8} ${mouthY+r*.22} Q${cx} ${mouthY-r*.22} ${cx+mw*.8} ${mouthY+r*.22}" fill="none" stroke="${INK}" stroke-width="${sw*1.15}" stroke-linecap="round"/>`
+    grin:`<path d="M${cx-mw*1.3} ${mouthY} Q${cx} ${mouthY+r*1.1} ${cx+mw*1.3} ${mouthY} Z" fill="${INK}" stroke="${INK}" stroke-width="${fw*.5}" stroke-linejoin="round"/><path d="M${cx-mw*.8} ${mouthY+r*.55} Q${cx} ${mouthY+r*1.0} ${cx+mw*.8} ${mouthY+r*.55} Z" fill="#FF8FA3"/>`,
+    soft:`<path d="M${cx-mw*.75} ${mouthY} Q${cx} ${mouthY+r*.4} ${cx+mw*.75} ${mouthY}" fill="none" stroke="${INK}" stroke-width="${fw}" stroke-linecap="round"/>`,
+    flat:`<path d="M${cx-mw*.7} ${mouthY} L${cx+mw*.7} ${mouthY}" fill="none" stroke="${INK}" stroke-width="${fw}" stroke-linecap="round"/>`,
+    frown:`<path d="M${cx-mw*.85} ${mouthY+r*.3} Q${cx} ${mouthY-r*.3} ${cx+mw*.85} ${mouthY+r*.3}" fill="none" stroke="${INK}" stroke-width="${fw}" stroke-linecap="round"/>`,
+    wavy:`<path d="M${cx-mw} ${mouthY} Q${cx-mw*.5} ${mouthY-r*.35} ${cx} ${mouthY} Q${cx+mw*.5} ${mouthY+r*.35} ${cx+mw} ${mouthY}" fill="none" stroke="${INK}" stroke-width="${fw}" stroke-linecap="round"/>`,
+    grumpy:`<path d="M${cx-mw*.8} ${mouthY+r*.22} Q${cx} ${mouthY-r*.22} ${cx+mw*.8} ${mouthY+r*.22}" fill="none" stroke="${INK}" stroke-width="${fw*1.1}" stroke-linecap="round"/>`
   }[f.mouth];
   s+=`<g class="mouth" data-x="${cx}" data-y="${mouthY}">${M}</g>`;
   // sorrisinho de despedida (usado no tchau ao rolar a página)
-  if(f.mouth!=='grin') s+=`<g class="smile" opacity="0"><path d="M${cx-mw} ${mouthY-r*.05} Q${cx} ${mouthY+r*.8} ${cx+mw} ${mouthY-r*.05}" fill="none" stroke="${INK}" stroke-width="${sw}" stroke-linecap="round"/></g>`;
+  if(f.mouth!=='grin') s+=`<g class="smile" opacity="0"><path d="M${cx-mw} ${mouthY-r*.05} Q${cx} ${mouthY+r*.8} ${cx+mw} ${mouthY-r*.05}" fill="none" stroke="${INK}" stroke-width="${fw}" stroke-linecap="round"/></g>`;
   if(f.tear){
     s+=`<path class="tear-rest" d="${drop(ex[1]+r*.8, ey[1]+r*.95, r*.32)}" fill="#CFE6FF" stroke="#fff" stroke-width="${r*.06}"/>`;
     s+=`<g class="tears" opacity="0">`+[0,1].map(i=>[0,.5].map(o=>`<path data-o="${o}" d="${drop(ex[i]+(i?r*.75:-r*.75), ey[i]+r*.95, r*.3)}" fill="#CFE6FF" stroke="#fff" stroke-width="${r*.06}"/>`).join('')).join('')+`</g>`;
@@ -132,6 +134,7 @@ function frame(now){
     let tx=(ptr.x-ccx)/Math.max(240,rect.width*1.6), ty=(ptr.y-ccy)/Math.max(240,rect.height*1.6);
     if(idle){ tx=Math.sin(t*.35+c.seed)*.45; ty=Math.sin(t*.27+c.seed)*.22; }
     const mm=Math.hypot(tx,ty); if(mm>1){ tx/=mm; ty/=mm; }
+    if(c.peek){ tx*=.2; ty*=.2; } // espiando: olha para a pessoa
     if(c.d.face.lookDown) ty=Math.max(ty,.25);
     c.look.x+=(tx-c.look.x)*.1; c.look.y+=(ty-c.look.y)*.1;
     const p=(now-c.reactT)/c.d.react, R=p>=0&&p<1, mood=c.d.mood;
@@ -234,7 +237,7 @@ function nextKey(){
 function spawn(x,y){
   const sr=stage.getBoundingClientRect(); x-=sr.left; y-=sr.top;
   const k=nextKey();
-  const d=CAST[k], w=.8*Math.min(sr.width*Math.min(38,30/d.ratio)/100, 170/d.ratio), h=w*d.ratio, pad=10;
+  const d=CAST[k], t=alto(d.ratio), w=.8*Math.min(sr.width*Math.min(38,30*t/d.ratio)/100, 170*t/d.ratio), h=w*d.ratio, pad=10;
   x=Math.min(Math.max(x, w/2+pad), sr.width-w/2-pad); y=Math.min(Math.max(y, h/2+pad), sr.height-h/2-pad);
   const sp=document.createElement('span'); sp.className='spark'; sp.style.cssText=`left:${x}px; top:${y}px; --c:${d.c.e2}`;
   sp.addEventListener('animationend', ()=>sp.remove()); stage.appendChild(sp);
@@ -248,15 +251,57 @@ function spawn(x,y){
   if(live.length>MAX_SPAWN) live[0].dieT=now;
 }
 
+/* espiadinha: na abertura, algumas emoções espiam pelas bordas da tela olhando para a pessoa
+   e depois se escondem. Volta a acontecer de vez em quando se ninguém tocar na tela. */
+let peekers=[], peekT=0, lastTouch=performance.now(), lastPeek=0, peekLayer=null;
+const PEEK_SIDES=[
+  {side:'left',   y:.62, rot:22},
+  {side:'bottom', y:1,   rot:0},
+  {side:'right',  y:.5,  rot:-22},
+];
+function peek(){
+  if(!alive || reduce || peekers.length || intro.classList.contains('out') || intro.classList.contains('boot') || document.hidden) return;
+  // camada atrás do texto: elas espiam por trás das palavras e do botão
+  if(!peekLayer){ peekLayer=document.createElement('div'); peekLayer.className='peek-layer'; peekLayer.setAttribute('aria-hidden','true'); intro.prepend(peekLayer); }
+  const sr=peekLayer.getBoundingClientRect(); if(!sr.width) return;
+  const keys=[...ORDER].sort(()=>Math.random()-.5).slice(0,3);
+  PEEK_SIDES.forEach((P,i)=>{
+    const k=keys[i], d=CAST[k], bottom=P.side==='bottom';
+    const w=Math.min(sr.width*(bottom?.44:.42), bottom?230:210), h=w*d.ratio;
+    const box=document.createElement('div'); box.className='peek peek-'+P.side;
+    box.style.width=w+'px'; box.style.height=h+'px'; box.style.setProperty('--rot', P.rot+'deg');
+    // posição final: uma parte do corpo fica escondida atrás da borda
+    if(P.side==='left'){ box.style.left=(-w*.4)+'px'; box.style.top=(sr.height*P.y-h/2)+'px'; }
+    if(P.side==='right'){ box.style.left=(sr.width-w*.6)+'px'; box.style.top=(sr.height*P.y-h/2)+'px'; }
+    if(bottom){ box.style.left=(sr.width*.5-w/2)+'px'; box.style.top=(sr.height-h*.6)+'px'; }
+    const c=makeChar(k,{tilt:2, floatAmp:2, parallax:2, peek:1});
+    c.baseTransform='translate(-50%,-50%)'; c.el.style.width='100%'; c.el.style.left='50%'; c.el.style.top='50%';
+    box.appendChild(c.el); peekLayer.appendChild(box);
+    peekers.push({box,c});
+    setTimeout(()=>box.classList.add('show'), 60+i*200);
+  });
+  lastPeek=performance.now();
+  peekT=setTimeout(hidePeek, 3600);
+}
+function hidePeek(){
+  clearTimeout(peekT);
+  peekers.forEach(({box,c},i)=>{
+    setTimeout(()=>box.classList.remove('show'), i*110);
+    setTimeout(()=>{ box.remove(); const j=chars.indexOf(c); if(j>=0) chars.splice(j,1); }, 700+i*110);
+  });
+  peekers=[]; lastPeek=performance.now();
+}
+const peekLoop=setInterval(()=>{ const now=performance.now(); if(now-lastTouch>12000 && now-lastPeek>14000) peek(); }, 1000);
+
 /* FORM */
 let current=null, intensity=.75;
 const heroSlot=$('heroSlot'), chipsEl=$('chips'), heroChars={};
 Object.keys(CAST).forEach(k=>{ const c=makeChar(k,{tilt:3, floatAmp:4}); c.el.style.display='none'; c.baseTransform='translate(-50%,-56%)';
-  c.el.style.width=`min(${Math.min(50,38/CAST[k].ratio).toFixed(0)}cqw, ${Math.round(210/CAST[k].ratio)}px)`; heroSlot.appendChild(c.el); heroChars[k]=c; });
+  const t=alto(CAST[k].ratio); c.el.style.width=`min(${Math.min(50,38*t/CAST[k].ratio).toFixed(0)}cqw, ${Math.round(210*t/CAST[k].ratio)}px)`; heroSlot.appendChild(c.el); heroChars[k]=c; });
 ORDER.forEach(k=>{
   const b=document.createElement('button'); b.type='button'; b.className='mini'; b.dataset.k=k; b.setAttribute('aria-label', CAST[k].name);
   const slot=document.createElement('div'); slot.className='slot';
-  const c=makeChar(k,{static:true}); c.el.style.width=Math.round(Math.min(44, 35/CAST[k].ratio))+'px'; c.el.querySelector('.limbs').remove();
+  const c=makeChar(k,{static:true}); c.el.style.width=Math.round(Math.min(44, 35*alto(CAST[k].ratio)/CAST[k].ratio))+'px'; c.el.querySelector('.limbs').remove();
   const cr=c.el.querySelector('.crossed'); if(cr) cr.remove();
   slot.appendChild(c.el); b.appendChild(slot);
   b.onclick=()=>select(k); chipsEl.appendChild(b);
@@ -402,11 +447,11 @@ const onFormScroll=()=>{
 };
 form.addEventListener('scroll', onFormScroll, {passive:true});
 
-function start(){ intro.classList.add('out'); form.classList.add('in'); form.scrollTop=0; }
+function start(){ hidePeek(); intro.classList.add('out'); form.classList.add('in'); form.scrollTop=0; }
 $('startBtn').onclick=start;
 /* abertura: depois que o logo se monta no centro, ele sobe e o resto da tela aparece */
-const bootT=setTimeout(()=>intro.classList.remove('boot'), reduce?0:1500);
-intro.onpointerdown=e=>{ if(intro.classList.contains('out')||intro.classList.contains('boot')||e.target.closest('button')) return; spawn(e.clientX, e.clientY); };
+const bootT=setTimeout(()=>{ intro.classList.remove('boot'); setTimeout(peek, 700); }, reduce?0:1500);
+intro.onpointerdown=e=>{ lastTouch=performance.now(); if(intro.classList.contains('out')||intro.classList.contains('boot')||e.target.closest('button')) return; if(peekers.length) hidePeek(); spawn(e.clientX, e.clientY); };
 $('back').onclick=()=>{ intro.classList.remove('out'); form.classList.remove('in'); };
 
 
@@ -425,7 +470,7 @@ raf=requestAnimationFrame(frame);
 window.__nimthEmocao=()=>({ emocao:current, motivos: current&&current!=='nimbo' ? [...(picked[current]||[])] : [], intensidade: current&&current!=='nimbo' ? Math.round(intensity*100) : null });
 
 return ()=>{
-  alive=false; cancelAnimationFrame(raf); delete window.__nimthEmocao; clearTimeout(bootT);
+  alive=false; cancelAnimationFrame(raf); delete window.__nimthEmocao; clearTimeout(bootT); clearTimeout(peekT); clearInterval(peekLoop); peekLayer?.remove();
   form.removeEventListener('scroll', onFormScroll); hero.removeEventListener('pointerdown', swDown, true); hero.removeEventListener('pointerup', swUp, true);
   window.removeEventListener('pointermove', onMove);
   window.removeEventListener('touchstart', onTouch);

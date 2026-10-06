@@ -107,11 +107,11 @@ html.ds body { background: var(--background); color: var(--foreground); }
 }
 .ficha-topo .emo-nome { color: var(--fe3, var(--muted)); }
 
-/* Cartão do link: vidro verde-água e azul, como o botão da tela inicial */
+/* Cartão do link: vidro lilás e azul, como os botões principais */
 .link-ficha {
   background:
-    radial-gradient(90% 160% at 0% 0%, color-mix(in oklab, #35D0C3 22%, transparent), transparent 60%),
-    radial-gradient(90% 160% at 100% 100%, color-mix(in oklab, #4B8BFF 22%, transparent), transparent 60%),
+    radial-gradient(90% 160% at 0% 0%, color-mix(in oklab, #AB9FF2 26%, transparent), transparent 60%),
+    radial-gradient(90% 160% at 100% 100%, color-mix(in oklab, #7FA8FF 22%, transparent), transparent 60%),
     var(--surface);
 }
 
@@ -119,7 +119,7 @@ html.ds body { background: var(--background); color: var(--foreground); }
 .auth-fundo {
   background:
     radial-gradient(60% 50% at 15% 10%, color-mix(in oklab, var(--brand) 14%, transparent), transparent 70%),
-    radial-gradient(50% 45% at 90% 90%, color-mix(in oklab, #35D0C3 14%, transparent), transparent 70%),
+    radial-gradient(50% 45% at 90% 90%, color-mix(in oklab, #7FA8FF 16%, transparent), transparent 70%),
     var(--background);
 }
 
@@ -139,3 +139,6 @@ html.ds body { background: var(--background); color: var(--foreground); }
   html.ds main { max-width: none; padding: 0; }
   html.ds .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
 }
+
+/* Botão secundário neutro (o principal é o .vidro lilás e azul, em globals.css) */
+html.ds .button--secondary { color: var(--foreground); }

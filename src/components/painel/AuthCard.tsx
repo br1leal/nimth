@@ -11,7 +11,7 @@ export default function AuthCard({ titulo, texto, children, onSubmit, rodape }: 
     <div className="auth-fundo relative grid min-h-dvh place-items-center px-4 py-10">
       <div className="grid w-full max-w-[420px] gap-5">
         <Card className="gap-6 p-7 md:p-9">
-          <Logo className="h-7 w-auto justify-self-center text-foreground" />
+          <Logo className="h-10 w-auto justify-self-center text-foreground" />
           {(titulo || texto) && (
             <div className="grid gap-1.5 text-center">
               {titulo && <h1 className="font-serif text-[28px] leading-tight">{titulo}</h1>}
