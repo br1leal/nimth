@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { fontes, themeColor } from "../fontes";
+import { fontes, themeColor, scriptTema } from "../fontes";
 import "../globals.css";
 
 const base = process.env.NEXT_PUBLIC_SITE_URL || "https://nimth.vercel.app";
@@ -25,7 +25,8 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, view
 /** Área do paciente: tela inicial e ficha. Visual próprio, sem o design system do painel. */
 export default function LayoutPaciente({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={fontes} suppressHydrationWarning>
+    <html lang="pt-BR" className={fontes} data-theme="light" suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: scriptTema }} /></head>
       {/* suppressHydrationWarning: extensões do navegador (ex.: ColorZilla) injetam atributos no body */}
       <body suppressHydrationWarning>{children}</body>
     </html>

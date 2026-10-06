@@ -63,11 +63,16 @@ export default function FichaPaciente() {
   const temEmocao = !!e && f.emocao !== "nimbo";
   const endereco = [[en.rua, en.numero].filter(Boolean).join(", "), en.complemento, en.bairro, [en.cidade, en.uf].filter(Boolean).join(" / "), en.cep].filter(Boolean).join(" · ");
 
+  // fichas novas: lista de especialidades (com nome e contato opcionais); antigas: um médico só
+  const medicos: Linha[] = sa.medicos?.length
+    ? [["Especialidades", sa.medicos.map(m => m.especialidade).join(", ")],
+       ...sa.medicos.filter(m => m.nome || m.contato).map(m => [m.especialidade, [m.nome, m.contato].filter(Boolean).join(" · ")] as Linha)]
+    : [["Médico", sa.medicoNome ?? ""], ["Contato do médico", sa.medicoContato ?? ""]];
   const blocos: Record<string, Linha[]> = {
     "Dados pessoais": [["Nome completo", f.nome], ["Data de nascimento", f.nascimento ? `${dataBR(f.nascimento)}${a != null ? ` (${a} anos)` : ""}` : ""], ["Telefone", f.telefone ?? ""]],
     "Contato de emergência": [["Nome", em.nome ?? ""], ["Telefone", em.telefone ?? ""]],
     "Endereço": [["Endereço completo", endereco], ["CEP", en.cep ?? ""], ["Rua e número", [en.rua, en.numero].filter(Boolean).join(", ")], ["Complemento", en.complemento ?? ""], ["Bairro", en.bairro ?? ""], ["Cidade / UF", [en.cidade, en.uf].filter(Boolean).join(" / ")]],
-    "Saúde": [["Usa medicamento?", sa.medicamento ? "Sim" : "Não"], ...(sa.medicamento ? [["Quais", sa.medicamentos ?? ""] as Linha] : []), ["Acompanhado(a) por médico?", sa.medico ? "Sim" : "Não"], ...(sa.medico ? [["Médico", sa.medicoNome ?? ""] as Linha, ["Contato do médico", sa.medicoContato ?? ""] as Linha] : [])],
+    "Saúde": [["Usa medicamento?", sa.medicamento ? "Sim" : "Não"], ...(sa.medicamento ? [["Quais", sa.medicamentos ?? ""] as Linha] : []), ["Acompanhado(a) por médico?", sa.medico ? "Sim" : "Não"], ...(sa.medico ? medicos : [])],
   };
 
   const copiar = async (t: string, rot: string) => { if (!t) return; await navigator.clipboard.writeText(t); toast.success(`${rot} copiado`); };

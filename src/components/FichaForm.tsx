@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
+import Especialidades from "@/components/Especialidades";
 import { supabase, semConfig, TEXTO_LGPD } from "@/lib/supabase";
 
 /**
@@ -17,7 +18,7 @@ type Values = {
   cep: string; rua: string; numero: string; complemento: string; bairro: string; cidade: string; uf: string;
   emergNome: string; emergTel: string;
   med: YN; medQuais: string;
-  medico: YN; medicoNome: string; medicoContato: string;
+  medico: YN; esp: string[]; docs: Record<string, { nome: string; contato: string }>;
   lgpd: boolean;
 };
 type Key = keyof Values;
@@ -27,12 +28,12 @@ const EMPTY: Values = {
   nome: "", nascimento: "", telefone: "",
   cep: "", rua: "", numero: "", complemento: "", bairro: "", cidade: "", uf: "",
   emergNome: "", emergTel: "",
-  med: "", medQuais: "", medico: "", medicoNome: "", medicoContato: "",
+  med: "", medQuais: "", medico: "", esp: [], docs: {},
   lgpd: false,
 };
 
 /* ordem dos campos na tela, para focar o primeiro com erro */
-const ORDER: Key[] = ["nome", "nascimento", "telefone", "cep", "rua", "numero", "bairro", "cidade", "uf", "emergNome", "emergTel", "med", "medQuais", "medico", "medicoNome", "lgpd"];
+const ORDER: Key[] = ["nome", "nascimento", "telefone", "cep", "rua", "numero", "bairro", "cidade", "uf", "emergNome", "emergTel", "med", "medQuais", "medico", "esp", "lgpd"];
 
 const digits = (v: string) => v.replace(/\D/g, "");
 const maskCep = (v: string) => { const d = digits(v).slice(0, 8); return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d; };
@@ -99,6 +100,29 @@ function YesNo({ id, label, value, error, onChange }: { id: string; label: strin
   );
 }
 
+/** Nome e contato do médico de uma especialidade: fechado numa linha, abre ao tocar. */
+function MedicoDe({ esp, valor, onChange }: { esp: string; valor?: { nome: string; contato: string }; onChange: (v: { nome: string; contato: string }) => void }) {
+  const d = valor ?? { nome: "", contato: "" };
+  const [aberto, setAberto] = useState(!!(d.nome || d.contato));
+  const nomeRef = useRef<HTMLInputElement>(null);
+  const resumo = [d.nome, d.contato].filter(Boolean).join(" · ");
+  return (
+    <div className={`esp-doc${aberto ? " aberto" : ""}`}>
+      <button type="button" className="esp-doc-t" aria-expanded={aberto}
+        onClick={() => { setAberto(a => !a); if (!aberto) requestAnimationFrame(() => nomeRef.current?.focus()); }}>
+        <span className="esp-doc-nome">{esp}</span>
+        <span className="esp-doc-acao">{aberto ? "Fechar" : resumo || <><Icon name="plus" className="icon-xs" />Nome e contato</>}</span>
+      </button>
+      {aberto && (
+        <div className="esp-doc-campos">
+          <input ref={nomeRef} className="inp" value={d.nome} onChange={e => onChange({ ...d, nome: e.target.value })} placeholder="Nome do(a) médico(a)" aria-label={`Nome do médico de ${esp}`} autoComplete="off" />
+          <input className="inp" value={d.contato} onChange={e => onChange({ ...d, contato: e.target.value })} placeholder="Telefone ou e-mail" aria-label={`Contato do médico de ${esp}`} autoComplete="off" />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function FichaForm({ slug, onEnviado }: { slug?: string; onEnviado?: () => void }) {
   const [envio, setEnvio] = useState<"idle" | "sending" | "done">("idle");
   const [v, setV] = useState<Values>(EMPTY);
@@ -147,7 +171,7 @@ export default function FichaForm({ slug, onEnviado }: { slug?: string; onEnviad
     if (!v.med) e.med = "Escolha uma opção";
     if (v.med === "sim" && !v.medQuais.trim()) e.medQuais = "Conte quais medicamentos";
     if (!v.medico) e.medico = "Escolha uma opção";
-    if (v.medico === "sim" && !v.medicoNome.trim()) e.medicoNome = need;
+    if (v.medico === "sim" && !v.esp.length) e.esp = "Escolha ao menos uma especialidade";
     if (!v.lgpd) e.lgpd = "Precisamos da sua autorização para continuar";
     return e;
   }
@@ -184,7 +208,8 @@ export default function FichaForm({ slug, onEnviado }: { slug?: string; onEnviad
         emergencia: { nome: v.emergNome.trim(), telefone: v.emergTel },
         saude: {
           medicamento: v.med === "sim", medicamentos: v.med === "sim" ? v.medQuais.trim() : "",
-          medico: v.medico === "sim", medicoNome: v.medico === "sim" ? v.medicoNome.trim() : "", medicoContato: v.medico === "sim" ? v.medicoContato.trim() : "",
+          medico: v.medico === "sim",
+          medicos: v.medico === "sim" ? v.esp.map(x => ({ especialidade: x, nome: v.docs[x]?.nome.trim() ?? "", contato: v.docs[x]?.contato.trim() ?? "" })) : [],
         },
       },
       p_emocao: em.emocao,
@@ -297,12 +322,15 @@ export default function FichaForm({ slug, onEnviado }: { slug?: string; onEnviad
           <YesNo id="f-medico" label="É acompanhado(a) por algum médico?" value={v.medico} error={err.medico} onChange={x => set("medico", x)} />
           {v.medico === "sim" && (
             <div className="reveal">
-              <Field id="f-medicoNome" label="Nome do médico" required error={err.medicoNome}>
-                <input {...inp("medicoNome")} value={v.medicoNome} onChange={e => set("medicoNome", e.target.value)} placeholder="E a especialidade, se souber" />
+              <Field id="f-esp" label="Qual especialidade?" required error={err.esp} hint="Pode escolher mais de uma.">
+                <Especialidades id="f-esp" value={v.esp} onChange={x => set("esp", x)} invalid={!!err.esp} describedBy="f-esp-msg" />
               </Field>
-              <Field id="f-medicoContato" label="Contato do médico">
-                <input {...inp("medicoContato")} value={v.medicoContato} onChange={e => set("medicoContato", e.target.value)} placeholder="Telefone ou e-mail" />
-              </Field>
+              {v.esp.length > 0 && (
+                <div className="esp-docs">
+                  <p className="rotulo">Se souber, quem acompanha você <span>(opcional)</span></p>
+                  {v.esp.map(x => <MedicoDe key={x} esp={x} valor={v.docs[x]} onChange={d => set("docs", { ...v.docs, [x]: d })} />)}
+                </div>
+              )}
             </div>
           )}
         </section>

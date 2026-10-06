@@ -8,7 +8,7 @@ const CHAVE = "nimbo-theme";
 export default function TemaSwitch({ className = "" }: { className?: string }) {
   const [dark, setDark] = useState<boolean | null>(null);
   useEffect(() => {
-    let d = matchMedia("(prefers-color-scheme: dark)").matches;
+    let d = false; // claro é o padrão; escuro só se a pessoa escolher
     try { const v = localStorage.getItem(CHAVE); if (v === "escuro") d = true; else if (v === "claro") d = false; } catch {}
     setDark(d);
   }, []);

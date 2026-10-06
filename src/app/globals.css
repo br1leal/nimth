@@ -279,6 +279,47 @@ html.ds .button--primary::before, html.ds .button--primary::after{
 .seg-opt input:focus-visible + span{outline:2.5px solid var(--brand); outline-offset:2px}
 .reveal{display:grid; gap:14px; animation:reveal .35s cubic-bezier(.2,.8,.2,1)}
 @keyframes reveal{from{opacity:0; transform:translateY(-6px)}}
+
+/* ============ especialidades médicas (pills) ============ */
+.icon-xs{width:14px; height:14px}
+.sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+.esp{display:grid; gap:10px}
+.esp-box{display:flex; flex-wrap:wrap; align-items:center; gap:6px; min-height:50px; padding:6px 8px 6px 18px; border:1px solid var(--line); background:var(--field); border-radius:999px; cursor:text; transition:border-color .2s, box-shadow .2s, border-radius .2s}
+.esp-box.tem{border-radius:var(--r-area); padding-left:6px}
+.esp-box:focus-within{border-color:var(--e2); box-shadow:0 0 0 4px color-mix(in oklab, var(--e2) 30%, transparent)}
+.esp-box[aria-invalid]{border-color:var(--danger)}
+.esp-inp{flex:1 1 140px; min-width:0; height:36px; border:0; background:none; outline:none; font:inherit; font-size:15px; color:var(--ink); padding:0 6px}
+.esp-inp::placeholder{color:var(--ink-3)}
+.esp-pill{display:inline-flex; align-items:center; gap:4px; height:34px; padding:0 4px 0 13px; border-radius:999px; background:var(--brand-soft); color:var(--brand-ink); font-size:14px; font-weight:500; animation:pill-in .28s cubic-bezier(.34,1.56,.64,1)}
+.esp-pill button{display:grid; place-items:center; width:26px; height:26px; border:0; border-radius:50%; background:none; color:inherit; cursor:pointer; opacity:.7; transition:background .15s, opacity .15s}
+.esp-pill button:hover, .esp-pill button:focus-visible{opacity:1; background:color-mix(in oklab, var(--brand-ink) 14%, transparent); outline:none}
+@keyframes pill-in{from{opacity:0; transform:scale(.7)}}
+.esp-lista{list-style:none; margin:0; padding:6px; display:grid; gap:2px; border:1px solid var(--line); background:var(--field); border-radius:22px; box-shadow:0 14px 34px -18px var(--shadow); animation:reveal .2s ease}
+.esp-op{display:flex; align-items:center; gap:10px; min-height:44px; padding:0 14px; border-radius:16px; font-size:15px; cursor:pointer; color:var(--ink)}
+.esp-op .icon{color:var(--ink-3); opacity:0; transition:opacity .15s}
+.esp-op.on{background:var(--brand-soft); color:var(--brand-ink)}
+.esp-op.on .icon{opacity:1; color:currentColor}
+.esp-op mark{background:none; color:inherit; font-weight:600}
+.esp-op.livre{color:var(--ink-2)} .esp-op.livre .icon{opacity:1}
+.esp-op.livre.on{color:var(--brand-ink)}
+.esp-vazio{padding:10px 14px; font-size:13.5px; color:var(--ink-3)}
+.esp-comuns{display:flex; flex-wrap:wrap; gap:6px}
+.esp-atalho{display:inline-flex; align-items:center; gap:5px; height:34px; padding:0 13px 0 10px; border-radius:999px; border:1px dashed var(--line); background:none; color:var(--ink-2); font:inherit; font-size:13.5px; cursor:pointer; transition:background .15s, color .15s, border-color .15s, transform .15s}
+.esp-atalho:hover{background:var(--brand-soft); color:var(--brand-ink); border-color:transparent}
+.esp-atalho:active{transform:scale(.95)}
+.esp-atalho:focus-visible{outline:2.5px solid var(--brand); outline-offset:2px}
+.esp-docs{display:grid; gap:10px}
+.esp-docs .rotulo{margin:0; font-size:13px; font-weight:500; padding-left:4px}
+.esp-docs .rotulo span{color:var(--ink-3); font-weight:400}
+.esp-doc{border-radius:24px; background:color-mix(in oklab, var(--brand-soft) 35%, transparent); border:1px solid var(--card-line); animation:reveal .3s ease; overflow:hidden}
+.esp-doc-t{display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; min-height:48px; padding:0 16px; border:0; background:none; font:inherit; color:inherit; cursor:pointer; text-align:left}
+.esp-doc-nome{font-size:14px; font-weight:600; color:var(--brand-ink)}
+.esp-doc-acao{display:inline-flex; align-items:center; gap:4px; min-width:0; font-size:13px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.esp-doc-t:hover .esp-doc-acao{color:var(--brand-ink)}
+.esp-doc-t:focus-visible{outline:2.5px solid var(--brand); outline-offset:-3px; border-radius:24px}
+.esp-doc-campos{display:grid; gap:8px; padding:0 10px 10px; animation:reveal .25s ease}
+.esp-doc .inp{height:46px}
+@media (min-width:560px){ .esp-doc-campos{grid-template-columns:1fr 1fr} }
 .submit{display:grid; gap:var(--s-4); padding:var(--s-1) var(--s-1) 0}
 .aviso{position:fixed; left:50%; bottom:calc(64px + env(safe-area-inset-bottom,0px)); width:max-content; transform:translate(-50%,20px); opacity:0; background:var(--btn); color:var(--btn-ink); padding:12px 18px; border-radius:999px; font-size:14px; z-index:60; transition:.3s; pointer-events:none; max-width:calc(100% - 32px); text-align:center}
 .aviso.on{opacity:1; transform:translate(-50%,0)}

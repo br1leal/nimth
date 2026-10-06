@@ -14,7 +14,7 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, view
 /** Área da psicóloga: usa o design system (HeroUI + tema nimth). */
 export default function LayoutSistema({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`ds ${fontes}`} suppressHydrationWarning>
+    <html lang="pt-BR" className={`ds ${fontes}`} data-theme="light" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: scriptTema }} />
       </head>

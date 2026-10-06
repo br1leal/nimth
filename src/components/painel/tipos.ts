@@ -3,7 +3,7 @@ export type Ficha = {
   dados: {
     endereco?: { cep?: string; rua?: string; numero?: string; complemento?: string; bairro?: string; cidade?: string; uf?: string };
     emergencia?: { nome?: string; telefone?: string };
-    saude?: { medicamento?: boolean; medicamentos?: string; medico?: boolean; medicoNome?: string; medicoContato?: string };
+    saude?: { medicamento?: boolean; medicamentos?: string; medico?: boolean; medicoNome?: string; medicoContato?: string; medicos?: { especialidade: string; nome?: string; contato?: string }[] };
   };
   emocao: string | null; motivos: string[]; intensidade: number | null;
   lgpd_aceito_em: string; lgpd_texto: string; status: "nova" | "vista" | "arquivada"; criado_em: string;

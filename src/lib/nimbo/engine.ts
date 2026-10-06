@@ -473,9 +473,8 @@ intro.onpointerdown=e=>{ lastTouch=performance.now(); if(intro.classList.contain
 $('back').onclick=()=>{ intro.classList.remove('out'); form.classList.remove('in'); };
 
 
-/* tema: chave sol/lua (claro/escuro); sem escolha salva, segue o sistema */
-const darkMQ=matchMedia('(prefers-color-scheme: dark)');
-let dark=darkMQ.matches;
+/* tema: chave sol/lua (claro/escuro); sem escolha salva, começa no claro */
+let dark=false;
 try{ const v=localStorage.getItem('nimbo-theme'); if(v==='escuro') dark=true; else if(v==='claro') dark=false; }catch(e){}
 function applyTheme(save){ root.setAttribute('data-theme', dark?'dark':'light'); const b=$('themeBtn'); b.setAttribute('aria-checked', String(dark)); b.classList.toggle('is-dark', dark);
   if(save){ try{ localStorage.setItem('nimbo-theme', dark?'escuro':'claro'); }catch(e){} } }

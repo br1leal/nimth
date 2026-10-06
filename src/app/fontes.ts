@@ -18,10 +18,8 @@ const caveat = Caveat({ weight: "500", subsets: ["latin"], variable: "--font-cav
 /** Classes das fontes para o <html>. */
 export const fontes = `${youngSerif.variable} ${switzer.variable} ${plexMono.variable} ${caveat.variable}`;
 
-export const themeColor = [
-  { media: "(prefers-color-scheme: light)", color: "#FAF8F4" },
-  { media: "(prefers-color-scheme: dark)", color: "#111016" },
-];
+/** Barra do navegador no tom claro (o claro é o tema padrão). */
+export const themeColor = "#FAF8F4";
 
-/** Aplica o tema salvo antes da página aparecer (evita piscar claro→escuro). */
-export const scriptTema = `try{var t=localStorage.getItem('nimbo-theme');if(t==='escuro')document.documentElement.setAttribute('data-theme','dark');else if(t==='claro')document.documentElement.setAttribute('data-theme','light');}catch(e){}`;
+/** Claro é o padrão; escuro só se a pessoa escolheu. Roda antes da página aparecer (evita piscar). */
+export const scriptTema = `try{if(localStorage.getItem('nimbo-theme')==='escuro')document.documentElement.setAttribute('data-theme','dark');}catch(e){}`;
