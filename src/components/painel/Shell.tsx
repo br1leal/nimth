@@ -62,12 +62,12 @@ export default function Shell({ children, psi }: { children: ReactNode; psi?: Ps
           <ItemMenu href="/painel" icon="users" ativo={path.startsWith("/painel")}>Pacientes</ItemMenu>
           <ItemMenu href={fichaLink} icon="external" externo>Ver minha ficha</ItemMenu>
         </nav>
-        <div className="mt-auto grid gap-4">
+        <div className="mt-auto grid min-w-0 gap-4">
           <TemaSwitch className="justify-self-start" />
-          <div className="flex items-center gap-3 rounded-3xl bg-surface p-3 shadow-surface">
+          <div className="flex min-w-0 items-center gap-3 overflow-hidden rounded-3xl bg-surface p-3 shadow-surface">
             <Avatar size="sm" color="accent" variant="soft"><Avatar.Fallback>{iniciais(psi?.nome)}</Avatar.Fallback></Avatar>
             <div className="min-w-0 flex-1 leading-tight">
-              <p className="truncate text-sm font-medium">{psi?.nome || " "}</p>
+              <p className="truncate text-sm font-medium" title={psi?.nome}>{psi?.nome || " "}</p>
               <p className="truncate text-xs text-muted">{psi?.crp ? `CRP ${psi.crp}` : "Psicóloga"}</p>
             </div>
             <Button isIconOnly size="sm" variant="ghost" aria-label="Sair" onPress={sair}><Icon name="logout" className="icon-sm" /></Button>

@@ -142,3 +142,20 @@ html.ds body { background: var(--background); color: var(--foreground); }
 
 /* Botão secundário neutro (o principal é o .vidro lilás e azul, em globals.css) */
 html.ds .button--secondary { color: var(--foreground); }
+
+/* WhatsApp: botão branco com texto e ícone verdes */
+html.ds .botao-whats { background: #FFFFFF; color: #128C4A; border: 1px solid #BFE8CF; }
+html.ds .botao-whats:hover { background: #F1FBF5; }
+:root[data-theme="dark"].ds .botao-whats { background: #17241D; color: #4ADE80; border-color: #24543A; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]).ds .botao-whats { background: #17241D; color: #4ADE80; border-color: #24543A; } }
+
+/* Avisos (toast) bem visíveis: fundo claro com borda; sucesso em verde-claro */
+html.ds .toast { border: 1px solid var(--border); }
+html.ds .toast--success { background: #EAF9F0; border-color: #9EDCB5; color: #12492C; }
+html.ds .toast--success .toast__description { color: #2E6B48; }
+:root[data-theme="dark"].ds .toast--success { background: #15281E; border-color: #2F6A47; color: #CFF5DD; }
+:root[data-theme="dark"].ds .toast--success .toast__description { color: #9FD9B5; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]).ds .toast--success { background: #15281E; border-color: #2F6A47; color: #CFF5DD; }
+  :root:not([data-theme="light"]).ds .toast--success .toast__description { color: #9FD9B5; }
+}

@@ -70,7 +70,7 @@ export default function FichaPaciente() {
     "Saúde": [["Usa medicamento?", sa.medicamento ? "Sim" : "Não"], ...(sa.medicamento ? [["Quais", sa.medicamentos ?? ""] as Linha] : []), ["Acompanhado(a) por médico?", sa.medico ? "Sim" : "Não"], ...(sa.medico ? [["Médico", sa.medicoNome ?? ""] as Linha, ["Contato do médico", sa.medicoContato ?? ""] as Linha] : [])],
   };
 
-  const copiar = async (t: string, rot: string) => { if (!t) return; await navigator.clipboard.writeText(t); toast(`${rot} copiado`); };
+  const copiar = async (t: string, rot: string) => { if (!t) return; await navigator.clipboard.writeText(t); toast.success(`${rot} copiado`); };
   const tudo = () => [
     `Ficha de ${f.nome}`, `Enviada em ${dataBR(f.criado_em)}`, "",
     ...(temEmocao ? [`Como chegou: ${e!.nome}${f.intensidade != null ? ` (${intensTexto(f.intensidade)})` : ""}${f.motivos?.length ? ` · ${f.motivos.join(", ")}` : ""}`, ""] : []),
@@ -79,7 +79,7 @@ export default function FichaPaciente() {
   const arquivar = async () => {
     const novo = f.status === "arquivada" ? "vista" : "arquivada";
     await supabase()!.from("fichas").update({ status: novo }).eq("id", f.id);
-    if (novo === "arquivada") { toast("Ficha arquivada"); router.push("/painel"); } else { setF({ ...f, status: novo }); toast("Ficha de volta à lista"); }
+    if (novo === "arquivada") { toast.success("Ficha arquivada"); router.push("/painel"); } else { setF({ ...f, status: novo }); toast.success("Ficha de volta à lista"); }
   };
 
   return (

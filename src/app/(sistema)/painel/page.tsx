@@ -74,7 +74,7 @@ export default function Pacientes() {
         </div>
         <div className="flex shrink-0 gap-2">
           <Button variant="primary" onPress={copiarLink}><Icon name="copy" className="icon-sm" />Copiar link</Button>
-          <a className={buttonVariants({ variant: "secondary" })} href={whats} target="_blank" rel="noopener noreferrer"><Icon name="share" className="icon-sm" />WhatsApp</a>
+          <a className={`${buttonVariants({ variant: "secondary" })} botao-whats`} href={whats} target="_blank" rel="noopener noreferrer"><Icon name="share" className="icon-sm" />WhatsApp</a>
         </div>
       </Card>
 
