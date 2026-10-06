@@ -5,7 +5,8 @@
  * e anima olhos, pálpebras, braços, pernas, reações ao toque e arraste com mola.
  * initNimbo() devolve uma função de limpeza (usada pelo useEffect do React).
  */
-import { ARMS, LEGS, CAST, ORDER, REASONS, BPOS } from "./cast";
+import { CAST, ORDER, REASONS, BPOS } from "./cast";
+import { pecasDoPersonagem } from "./pecas";
 
 export function initNimbo(): () => void {
 const $=id=>document.getElementById(id);
@@ -13,29 +14,18 @@ let raf=0, alive=true;
 ['stage','heroSlot','chips','bubbles'].forEach(id=>{ const n=$(id); if(n) n.innerHTML=''; });
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const NS='http://www.w3.org/2000/svg';
-const INK='#1E1830';
 
-const drop=(x,y,s)=>`M${x} ${y} c0 0 ${-s} ${s*1.55} ${-s} ${s*2.4} a${s} ${s} 0 0 0 ${s*2} 0 c0 ${-s*.85} ${-s} ${-s*2.4} ${-s} ${-s*2.4} z`;
 
 const chars=[];
 /* personagens altos (ex.: Neutro em pílula) ganham um pouco mais de altura para não ficarem miúdos */
 const alto=r=>Math.min(1.35, Math.sqrt(Math.max(1,r)));
 function makeChar(key, opts={}){
-  const d=CAST[key], W=1000, H=Math.round(1000*d.ratio), f=d.face, L=d.limbs;
-  const el=document.createElement('div'); el.className='char'; el.dataset.k=key;
-  const r=d.r*10, u=r*1.05, au=r*(L.armLen||1.45), sw=r*.26, fw=sw; // traço grosso, com personalidade (fw no rosto, sw nos braços e pernas)
-  const mid=(d.eyes[0][0]+d.eyes[1][0])/2;
-  const ex=d.eyes.map(e=>(mid+(e[0]-mid)*.9)*10), ey=d.eyes.map(e=>e[1]*10);
-  const cx=(ex[0]+ex[1])/2, mouthY=ey[0]+r*1.6;
   const uid=key+Math.random().toString(36).slice(2,6);
-  const stroke=c=>`fill="none" style="stroke:${c}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"`;
-  const ax=(L.armAt?.[0]||0)*10, ay=(L.armAt?.[1]||0)/100*H;
+  const {d, W, H, r, L, limbs:lm, face:s}=pecasDoPersonagem(key, uid); // desenho em pecas.ts (o mesmo do retrato do painel)
+  const el=document.createElement('div'); el.className='char'; el.dataset.k=key;
 
   /* membros atrás do corpo */
   const limbs=document.createElementNS(NS,'svg'); limbs.setAttribute('viewBox',`0 0 ${W} ${H}`); limbs.setAttribute('class','limbs');
-  let lm='';
-  if(L.leg&&L.leg!=='lotus') L.legAt.forEach((p,i)=>{ lm+=`<g transform="translate(${p[0]*10} ${p[1]/100*H}) scale(${i?-1:1} 1)"><g class="leg"><path d="${LEGS[L.leg](u)}" ${stroke('var(--limb)')}/></g></g>`; });
-  if(L.arm!=='crossed'&&L.arm!=='none') [ax, W-ax].forEach((x,i)=>{ lm+=`<g transform="translate(${x} ${ay}) scale(${i?-1:1} 1)"><g class="arm"><path d="${ARMS[L.arm](au)}" ${stroke('var(--limb)')}/></g></g>`; });
   limbs.innerHTML=lm; el.appendChild(limbs);
 
   const img=document.createElement('img'); img.src=d.img; img.alt=d.name; img.draggable=false; el.appendChild(img);
@@ -47,47 +37,6 @@ function makeChar(key, opts={}){
 
   /* rosto e elementos na frente */
   const face=document.createElementNS(NS,'svg'); face.setAttribute('viewBox',`0 0 ${W} ${H}`); face.setAttribute('class','face');
-  let s='';
-  if(L.leg==='lotus') L.legAt.forEach((p,i)=>{ s+=`<g transform="translate(${p[0]*10} ${p[1]/100*H}) scale(${i?-1:1} 1)"><path d="${LEGS.lotus(u)}" ${stroke(INK)}/></g>`; });
-  if(L.arm==='crossed'){ // braços cruzados na frente da barriga
-    const xl=ax, xr=W-ax, c1=W/2;
-    s+=`<g class="crossed">
-      <path d="M${xl} ${ay} C${xl+.3*u} ${ay+.75*u} ${c1-.1*u} ${ay+.8*u} ${c1+.85*u} ${ay-.1*u}" ${stroke(INK)}/>
-      <path d="M${xr} ${ay} C${xr-.3*u} ${ay+.55*u} ${c1+.1*u} ${ay+.6*u} ${c1-.85*u} ${ay-.25*u}" ${stroke(INK)}/></g>`;
-  }
-  ex.forEach((x,i)=>{ const y=ey[i], id=uid+i;
-    s+=`<defs><clipPath id="${id}"><ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r*1.1}"/></clipPath></defs>
-    <g class="eye" data-x="${x}" data-y="${y}">
-      <ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r*1.1}" fill="#FFFFFF"/>
-      <g clip-path="url(#${id})">
-        <g class="pupil" data-x="${x}" data-y="${y+r*.12}"><circle cx="${x}" cy="${y+r*.12}" r="${r*.64*f.pupil}" fill="${INK}"/><circle cx="${x+r*.22}" cy="${y-r*.14}" r="${r*.2}" fill="#fff"/><circle cx="${x-r*.12}" cy="${y+r*.32}" r="${r*.07}" fill="#fff" opacity=".7"/></g>
-        <g class="lid" data-x="${x}" data-y="${y}"><rect x="${x-r*1.8}" y="${y-r*3.92}" width="${r*3.6}" height="${r*2.6}" fill="${L.tone}"/><line x1="${x-r*1.8}" y1="${y-r*1.32}" x2="${x+r*1.8}" y2="${y-r*1.32}" stroke="${INK}" stroke-width="${r*.22}" stroke-linecap="round"/></g>
-      </g>
-    </g>`;
-  });
-  const B=f.brow, bw=r*.62, by=ey[0]-r*1.55+B.y*r;
-  const brow=(x,side)=>`<path d="M${x-bw} ${by} Q${x} ${by-(B.arch||0)*r*.5} ${x+bw} ${by}" fill="none" stroke="${INK}" stroke-width="${fw}" stroke-linecap="round" transform="rotate(${B.angle*side} ${x} ${by})"/>`;
-  s+=`<g class="brows">`+brow(ex[0],1)+(B.one?`<path class="brow-up" d="M${ex[1]-bw} ${by-r*.4} Q${ex[1]} ${by-r*.62} ${ex[1]+bw} ${by-r*.4}" fill="none" stroke="${INK}" stroke-width="${fw}" stroke-linecap="round"/>`:brow(ex[1],-1))+`</g>`;
-  if(f.cheeks) s+=`<ellipse cx="${ex[0]-r*.95}" cy="${ey[0]+r*1.3}" rx="${r*.8}" ry="${r*.4}" fill="#FF7FA0" opacity="${.38*f.cheeks}"/><ellipse cx="${ex[1]+r*.95}" cy="${ey[1]+r*1.3}" rx="${r*.8}" ry="${r*.4}" fill="#FF7FA0" opacity="${.38*f.cheeks}"/>`;
-  const mw=r*.6, M={
-    grin:`<path d="M${cx-mw*1.3} ${mouthY} Q${cx} ${mouthY+r*1.1} ${cx+mw*1.3} ${mouthY} Z" fill="${INK}" stroke="${INK}" stroke-width="${fw*.5}" stroke-linejoin="round"/><path d="M${cx-mw*.8} ${mouthY+r*.55} Q${cx} ${mouthY+r*1.0} ${cx+mw*.8} ${mouthY+r*.55} Z" fill="#FF8FA3"/>`,
-    soft:`<path d="M${cx-mw*.75} ${mouthY} Q${cx} ${mouthY+r*.4} ${cx+mw*.75} ${mouthY}" fill="none" stroke="${INK}" stroke-width="${fw}" stroke-linecap="round"/>`,
-    flat:`<path d="M${cx-mw*.7} ${mouthY} L${cx+mw*.7} ${mouthY}" fill="none" stroke="${INK}" stroke-width="${fw}" stroke-linecap="round"/>`,
-    frown:`<path d="M${cx-mw*.85} ${mouthY+r*.3} Q${cx} ${mouthY-r*.3} ${cx+mw*.85} ${mouthY+r*.3}" fill="none" stroke="${INK}" stroke-width="${fw}" stroke-linecap="round"/>`,
-    wavy:`<path d="M${cx-mw} ${mouthY} Q${cx-mw*.5} ${mouthY-r*.35} ${cx} ${mouthY} Q${cx+mw*.5} ${mouthY+r*.35} ${cx+mw} ${mouthY}" fill="none" stroke="${INK}" stroke-width="${fw}" stroke-linecap="round"/>`,
-    grumpy:`<path d="M${cx-mw*.8} ${mouthY+r*.22} Q${cx} ${mouthY-r*.22} ${cx+mw*.8} ${mouthY+r*.22}" fill="none" stroke="${INK}" stroke-width="${fw*1.1}" stroke-linecap="round"/>`
-  }[f.mouth];
-  s+=`<g class="mouth" data-x="${cx}" data-y="${mouthY}">${M}</g>`;
-  // sorriso aberto só quando reage (ex.: Alegria sorri de leve parada e ri ao ser tocada)
-  if(f.grinOnReact) s+=`<g class="grin" opacity="0" data-x="${cx}" data-y="${mouthY}"><path d="M${cx-mw*1.3} ${mouthY} Q${cx} ${mouthY+r*1.1} ${cx+mw*1.3} ${mouthY} Z" fill="${INK}" stroke="${INK}" stroke-width="${fw*.6}" stroke-linejoin="round"/><path d="M${cx-mw*.8} ${mouthY+r*.55} Q${cx} ${mouthY+r*1.0} ${cx+mw*.8} ${mouthY+r*.55} Z" fill="#FF8FA3"/></g>`;
-  // sorrisinho de despedida (usado no tchau ao rolar a página)
-  if(f.mouth!=='grin') s+=`<g class="smile" opacity="0"><path d="M${cx-mw} ${mouthY-r*.05} Q${cx} ${mouthY+r*.8} ${cx+mw} ${mouthY-r*.05}" fill="none" stroke="${INK}" stroke-width="${fw}" stroke-linecap="round"/></g>`;
-  if(f.tear){
-    s+=`<path class="tear-rest" d="${drop(ex[1]+r*.8, ey[1]+r*.95, r*.32)}" fill="#CFE6FF" stroke="#fff" stroke-width="${r*.06}"/>`;
-    s+=`<g class="tears" opacity="0">`+[0,1].map(i=>[0,.5].map(o=>`<path data-o="${o}" d="${drop(ex[i]+(i?r*.75:-r*.75), ey[i]+r*.95, r*.3)}" fill="#CFE6FF" stroke="#fff" stroke-width="${r*.06}"/>`).join('')).join('')+`</g>`;
-  }
-  if(f.sweat) s+=`<path class="sweat" d="${drop(ex[1]+r*1.85, ey[1]-r*1.8, r*.36)}" fill="#D8F3FF" stroke="#fff" stroke-width="${r*.06}"/>`;
-  if(f.smoke) s+=`<g class="smoke" opacity="0">`+[0,.2,.4,.6,.8].map((o,i)=>`<circle data-o="${o}" cx="${W*(.3+i*.1)}" cy="${H*.06}" r="${r*.55}" fill="#C9C2CE"/>`).join('')+`</g>`;
   face.innerHTML=s; el.appendChild(face);
 
   const c={key, el, d, r, img, W, H,
@@ -139,7 +88,6 @@ function frame(now){
     let tx=(ptr.x-ccx)/Math.max(240,rect.width*1.6), ty=(ptr.y-ccy)/Math.max(240,rect.height*1.6);
     if(idle){ tx=Math.sin(t*.35+c.seed)*.45; ty=Math.sin(t*.27+c.seed)*.22; }
     const mm=Math.hypot(tx,ty); if(mm>1){ tx/=mm; ty/=mm; }
-    if(c.peek){ tx*=.2; ty*=.2; } // espiando: olha para a pessoa
     if(c.d.face.lookDown) ty=Math.max(ty,.25);
     c.look.x+=(tx-c.look.x)*.1; c.look.y+=(ty-c.look.y)*.1;
     const p=(now-c.reactT)/c.d.react, R=p>=0&&p<1, mood=c.d.mood;
@@ -266,50 +214,6 @@ function spawn(x,y){
   if(live.length>MAX_SPAWN) live[0].dieT=now;
 }
 
-/* espiadinha: na abertura, algumas emoções espiam pelas bordas da tela olhando para a pessoa
-   e depois se escondem. Volta a acontecer de vez em quando se ninguém tocar na tela. */
-let peekers=[], peekT=0, lastTouch=performance.now(), lastPeek=0, peekLayer=null;
-const PEEK_SIDES=[
-  {side:'left',   y:.66, rot:16},
-  {side:'bottom', y:1,   rot:0},
-  {side:'right',  y:.29, rot:-16},
-];
-function peek(){
-  if(!alive || reduce || peekers.length || intro.classList.contains('out') || intro.classList.contains('boot') || document.hidden) return;
-  // camada atrás do texto: elas espiam por trás das palavras e do botão
-  if(!peekLayer){ peekLayer=document.createElement('div'); peekLayer.className='peek-layer'; peekLayer.setAttribute('aria-hidden','true'); intro.prepend(peekLayer); }
-  const sr=peekLayer.getBoundingClientRect(); if(!sr.width) return;
-  const keys=[...ORDER].sort(()=>Math.random()-.5).slice(0,3);
-  PEEK_SIDES.forEach((P,i)=>{
-    const k=keys[i], d=CAST[k], bottom=P.side==='bottom';
-    const w=Math.min(sr.width*(bottom?.36:.34), bottom?190:170), h=w*d.ratio;
-    const box=document.createElement('div'); box.className='peek peek-'+P.side;
-    box.style.width=w+'px'; box.style.height=h+'px'; box.style.setProperty('--rot', P.rot+'deg');
-    // posição final: só o rosto aparece, com os dois olhos sempre visíveis
-    const exMin=Math.min(d.eyes[0][0],d.eyes[1][0]), exMax=Math.max(d.eyes[0][0],d.eyes[1][0]), pad=d.r*1.4;
-    const eyeY=d.eyes[0][1]*10/(1000*d.ratio)*h, faceBottom=eyeY+d.r*3/100*w;
-    if(P.side==='left'){ box.style.left=(8-(exMin-pad)/100*w)+'px'; box.style.top=(sr.height*P.y-h/2)+'px'; }
-    if(P.side==='right'){ box.style.left=(sr.width-8-(exMax+pad)/100*w)+'px'; box.style.top=(sr.height*P.y-h/2)+'px'; }
-    if(bottom){ box.style.left=(sr.width*.5-w/2)+'px'; box.style.top=(sr.height-faceBottom-6)+'px'; }
-    const c=makeChar(k,{tilt:2, floatAmp:2, parallax:2, peek:1});
-    c.el.querySelector('.limbs')?.remove(); // espiando: só o corpo e o rosto, sem braços e pernas soltos
-    c.baseTransform='translate(-50%,-50%)'; c.el.style.width='100%'; c.el.style.left='50%'; c.el.style.top='50%';
-    box.appendChild(c.el); peekLayer.appendChild(box);
-    peekers.push({box,c});
-    setTimeout(()=>box.classList.add('show'), 60+i*200);
-  });
-  lastPeek=performance.now();
-  peekT=setTimeout(hidePeek, 3600);
-}
-function hidePeek(){
-  clearTimeout(peekT);
-  peekers.forEach(({box,c},i)=>{
-    setTimeout(()=>box.classList.remove('show'), i*110);
-    setTimeout(()=>{ box.remove(); const j=chars.indexOf(c); if(j>=0) chars.splice(j,1); }, 700+i*110);
-  });
-  peekers=[]; lastPeek=performance.now();
-}
-const peekLoop=setInterval(()=>{ const now=performance.now(); if(now-lastTouch>12000 && now-lastPeek>14000) peek(); }, 1000);
 
 /* FORM */
 let current=null, intensity=.75;
@@ -465,11 +369,11 @@ const onFormScroll=()=>{
 };
 form.addEventListener('scroll', onFormScroll, {passive:true});
 
-function start(){ hidePeek(); intro.classList.add('out'); form.classList.add('in'); form.scrollTop=0; }
+function start(){ intro.classList.add('out'); form.classList.add('in'); form.scrollTop=0; }
 $('startBtn').onclick=start;
 /* abertura: depois que o logo se monta no centro, ele sobe e o resto da tela aparece */
-const bootT=setTimeout(()=>{ intro.classList.remove('boot'); setTimeout(peek, 700); }, reduce?0:1500);
-intro.onpointerdown=e=>{ lastTouch=performance.now(); if(intro.classList.contains('out')||intro.classList.contains('boot')||e.target.closest('button')) return; if(peekers.length) hidePeek(); spawn(e.clientX, e.clientY); };
+const bootT=setTimeout(()=>{ intro.classList.remove('boot'); }, reduce?0:1500);
+intro.onpointerdown=e=>{ if(intro.classList.contains('out')||intro.classList.contains('boot')||e.target.closest('button')) return; spawn(e.clientX, e.clientY); };
 $('back').onclick=()=>{ intro.classList.remove('out'); form.classList.remove('in'); };
 
 
@@ -487,7 +391,7 @@ raf=requestAnimationFrame(frame);
 window.__nimthEmocao=()=>({ emocao:current, motivos: current&&current!=='nimbo' ? [...(picked[current]||[])] : [], intensidade: current&&current!=='nimbo' ? Math.round(intensity*100) : null });
 
 return ()=>{
-  alive=false; cancelAnimationFrame(raf); delete window.__nimthEmocao; clearTimeout(bootT); clearTimeout(peekT); clearInterval(peekLoop); peekLayer?.remove();
+  alive=false; cancelAnimationFrame(raf); delete window.__nimthEmocao; clearTimeout(bootT);
   form.removeEventListener('scroll', onFormScroll); hero.removeEventListener('pointerdown', swDown, true); hero.removeEventListener('pointerup', swUp, true);
   window.removeEventListener('pointermove', onMove);
   window.removeEventListener('touchstart', onTouch);

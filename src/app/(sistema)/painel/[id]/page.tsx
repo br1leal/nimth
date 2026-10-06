@@ -7,6 +7,7 @@ import Shell, { Carregando, Vazio } from "@/components/painel/Shell";
 import Icon from "@/components/Icon";
 import { usePsicologo } from "@/components/painel/usePsicologo";
 import { emocaoInfo } from "@/components/painel/emocoes";
+import Retrato from "@/components/painel/Retrato";
 import { type Ficha, dataBR, idade, intensTexto } from "@/components/painel/tipos";
 import { supabase } from "@/lib/supabase";
 
@@ -95,7 +96,7 @@ export default function FichaPaciente() {
 
       <Card className="ficha-topo gap-5 p-5 md:flex-row md:items-center md:gap-6 md:p-7" style={e ? { ["--fe1" as string]: e.claro, ["--fe3" as string]: e.cor } : undefined}>
         <div className="flex min-w-0 flex-1 items-center gap-4 md:gap-5">
-          {e && <img src={e.img} alt="" className="size-20 shrink-0 object-contain md:size-24" />}
+          {e && f.emocao && <Retrato emocao={f.emocao} titulo={e.nome} className="size-20 shrink-0 md:size-24" />}
           <div className="grid min-w-0 gap-1">
             {f.status === "arquivada" && <Chip size="sm" variant="secondary" className="w-fit">Arquivada</Chip>}
             <h1 className="font-serif text-[28px] leading-tight md:text-[34px]">{f.nome}</h1>

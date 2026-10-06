@@ -99,6 +99,11 @@ html.ds body { background: var(--background); color: var(--foreground); }
 /* Avatar com o personagem: fundo no tom claro da emoção */
 .emo-av { background: var(--av); }
 
+/* Personagem completo (olhos, boca, braços e pernas) no painel */
+.retrato { --limb: #1E1830; overflow: visible; }
+.retrato-membros { filter: drop-shadow(0 1px 1px rgba(30, 24, 48, .2)); }
+:root[data-theme="dark"] .retrato { --limb: #DCD7EA; }
+
 /* Topo da ficha: banho de cor da emoção */
 .ficha-topo {
   background:

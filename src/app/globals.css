@@ -140,15 +140,6 @@ html.ds .button--primary::before, html.ds .button--primary::after{
 .copy .start:hover{transform:translateY(-2px)} .copy .start:hover .icon{transform:translateX(3px)}
 .copy .start:active{transform:scale(.97)}
 /* brilho que abre quando uma emoção surge */
-/* espiadinha nas bordas da tela inicial */
-#intro{isolation:isolate}
-.peek-layer{position:absolute; inset:0; z-index:-1; overflow:hidden}
-.peek{position:absolute; z-index:0; pointer-events:none; transition:transform .5s cubic-bezier(.55,0,.85,.35)}
-.peek .char{pointer-events:auto}
-.peek-left{transform:translateX(-115%) rotate(var(--rot))}
-.peek-right{transform:translateX(115%) rotate(var(--rot))}
-.peek-bottom{transform:translateY(110%)}
-.peek.show{transform:rotate(var(--rot)); transition:transform 1s cubic-bezier(.34,1.45,.64,1)}
 .spark{position:absolute; width:12px; height:12px; margin:-6px 0 0 -6px; border-radius:50%; pointer-events:none; background:radial-gradient(circle, var(--c) 0%, transparent 70%); animation:spark .8s cubic-bezier(.2,.7,.3,1) forwards}
 @keyframes spark{from{transform:scale(1); opacity:.95} to{transform:scale(26); opacity:0}}
 .tap{margin-top:10px; text-align:center; font-family:var(--hand); font-weight:500; font-size:22px; letter-spacing:0; color:var(--ink-2); transform:rotate(-2deg); pointer-events:none; animation:breath 2.6s ease-in-out infinite}
