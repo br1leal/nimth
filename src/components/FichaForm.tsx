@@ -99,7 +99,7 @@ function YesNo({ id, label, value, error, onChange }: { id: string; label: strin
   );
 }
 
-export default function FichaForm({ slug }: { slug?: string }) {
+export default function FichaForm({ slug, onEnviado }: { slug?: string; onEnviado?: () => void }) {
   const [envio, setEnvio] = useState<"idle" | "sending" | "done">("idle");
   const [v, setV] = useState<Values>(EMPTY);
   const [err, setErr] = useState<Partial<Record<Key, string>>>({});
@@ -199,7 +199,8 @@ export default function FichaForm({ slug }: { slug?: string }) {
       return;
     }
     setEnvio("done");
-    requestAnimationFrame(() => document.getElementById("ficha-ok")?.scrollIntoView({ behavior: "smooth", block: "center" }));
+    onEnviado?.();
+    requestAnimationFrame(() => document.getElementById("form")?.scrollTo({ top: 0 }));
   }
 
   const inp = (k: Key) => ({

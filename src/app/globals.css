@@ -300,6 +300,11 @@ html.ds .button--primary::before, html.ds .button--primary::after{
 .enviado{justify-items:center; text-align:center; padding:36px 22px}
 .enviado-ic{width:56px; height:56px; border-radius:50%; display:grid; place-items:center; background:var(--e2); color:var(--e3)}
 .enviado p{margin:0; color:var(--ink-2); max-width:30ch; line-height:1.45}
+/* depois de enviar: some emoção, motivos e intensidade; fica só o topo e a mensagem */
+#form[data-enviado] .inner > :not(.top):not(.enviado){display:none !important}
+#form[data-enviado] .inner{min-height:100%; grid-template-rows:auto 1fr}
+#form[data-enviado] .enviado{align-self:center; width:100%; animation:surgir .45s ease both}
+@keyframes surgir{from{opacity:0; transform:translateY(12px)}to{opacity:1; transform:none}}
 .btn:disabled{opacity:.7; cursor:progress}
 .icon.spin{animation:spin .8s linear infinite}
 @media (prefers-reduced-motion: reduce){ .logo .l-contorno{animation:none; opacity:0} .logo .l-tinta{animation:none} }

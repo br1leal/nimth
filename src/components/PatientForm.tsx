@@ -15,6 +15,7 @@ import FichaForm from "@/components/FichaForm";
 export default function PatientForm({ slug }: { slug?: string }) {
   useEffect(() => initNimbo(), []);
   const [psi, setPsi] = useState("");
+  const [enviado, setEnviado] = useState(false);
 
   useEffect(() => {
     // links de convite / nova senha do Supabase chegam na raiz: manda para a tela de definir senha
@@ -55,7 +56,7 @@ export default function PatientForm({ slug }: { slug?: string }) {
         </div>
       </section>
 
-      <section className="screen" id="form">
+      <section className="screen" id="form" data-enviado={enviado || undefined}>
         <div className="inner">
           <div className="top">
             <button className="back-logo" id="back" type="button" aria-label="Voltar ao início"><Logo className="logo-sm" /></button>
@@ -85,7 +86,7 @@ export default function PatientForm({ slug }: { slug?: string }) {
           </div>
           <button className="skip" id="skip" type="button" hidden>Prefiro não responder</button>
 
-          <FichaForm slug={slug} />
+          <FichaForm slug={slug} onEnviado={() => setEnviado(true)} />
         </div>
       </section>
 
