@@ -61,9 +61,8 @@ function makeChar(key, opts={}){
       <ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r*1.1}" fill="#FFFFFF"/>
       <g clip-path="url(#${id})">
         <g class="pupil" data-x="${x}" data-y="${y+r*.12}"><circle cx="${x}" cy="${y+r*.12}" r="${r*.64*f.pupil}" fill="${INK}"/><circle cx="${x+r*.22}" cy="${y-r*.14}" r="${r*.2}" fill="#fff"/><circle cx="${x-r*.12}" cy="${y+r*.32}" r="${r*.07}" fill="#fff" opacity=".7"/></g>
-        <g class="lid" data-x="${x}" data-y="${y}"><rect x="${x-r*1.8}" y="${y-r*3.8}" width="${r*3.6}" height="${r*2.6}" fill="${L.tone}"/><line x1="${x-r*1.8}" y1="${y-r*1.2}" x2="${x+r*1.8}" y2="${y-r*1.2}" stroke="${INK}" stroke-width="${r*.22}" stroke-linecap="round"/></g>
+        <g class="lid" data-x="${x}" data-y="${y}"><rect x="${x-r*1.8}" y="${y-r*3.92}" width="${r*3.6}" height="${r*2.6}" fill="${L.tone}"/><line x1="${x-r*1.8}" y1="${y-r*1.32}" x2="${x+r*1.8}" y2="${y-r*1.32}" stroke="${INK}" stroke-width="${r*.22}" stroke-linecap="round"/></g>
       </g>
-      <ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r*1.1}" fill="none" stroke="rgba(0,0,0,.08)" stroke-width="${r*.08}"/>
     </g>`;
   });
   const B=f.brow, bw=r*.62, by=ey[0]-r*1.55+B.y*r;
@@ -157,7 +156,7 @@ function frame(now){
     const px=c.look.x*c.r*.4, py=c.look.y*c.r*.35;
     c.eyes.forEach(e=>{ const x=e.dataset.x, y=e.dataset.y; e.setAttribute('transform', eyeS===1?'':`translate(${x} ${y}) scale(${eyeS.toFixed(3)}) translate(${-x} ${-y})`); });
     c.pupils.forEach(pu=>{ const x=+pu.dataset.x, y=+pu.dataset.y; pu.setAttribute('transform',`translate(${(px+x).toFixed(1)} ${(py+y).toFixed(1)}) scale(${pupS.toFixed(3)}) translate(${-x} ${-y})`); });
-    c.lids.forEach((l,i)=>{ const x=l.dataset.x, y=l.dataset.y; l.setAttribute('transform',`rotate(${i?-ang:ang} ${x} ${y}) translate(0 ${(lid*c.r*2.55).toFixed(1)})`); });
+    c.lids.forEach((l,i)=>{ const x=l.dataset.x, y=l.dataset.y; l.setAttribute('transform',`rotate(${i?-ang:ang} ${x} ${y}) translate(0 ${(lid*c.r*2.67).toFixed(1)})`); });
     if(c.static) continue;
 
     // energia: lenta parada, mais viva com hover, arraste ou toque
@@ -174,6 +173,7 @@ function frame(now){
 
     // reações
     let hopY=0, extraRot=0, jx=0, grow=1, squashY=0;
+    if(mood==='joy'&&!reduce) extraRot=Math.sin(t*2.4+c.seed)*3*(.5+.5*E); // Alegria balança de leve, como se mexesse os bracinhos
     if(R&&!reduce) switch(mood){
       case 'joy': { const hp=Math.abs(Math.sin(p*Math.PI*2)); hopY=-hp*(rect.height*.16)*(1-p*.35); if(hp<.18) squashY=.06*(1-hp/.18); break; }
       case 'calm': extraRot=Math.sin(p*Math.PI*2.2)*7*(1-p); break;
@@ -465,7 +465,7 @@ form.addEventListener('scroll', onFormScroll, {passive:true});
 function start(){ hidePeek(); intro.classList.add('out'); form.classList.add('in'); form.scrollTop=0; }
 $('startBtn').onclick=start;
 /* abertura: depois que o logo se monta no centro, ele sobe e o resto da tela aparece */
-const bootT=setTimeout(()=>{ intro.classList.remove('boot'); setTimeout(peek, 700); }, reduce?0:2200);
+const bootT=setTimeout(()=>{ intro.classList.remove('boot'); setTimeout(peek, 700); }, reduce?0:1500);
 intro.onpointerdown=e=>{ lastTouch=performance.now(); if(intro.classList.contains('out')||intro.classList.contains('boot')||e.target.closest('button')) return; if(peekers.length) hidePeek(); spawn(e.clientX, e.clientY); };
 $('back').onclick=()=>{ intro.classList.remove('out'); form.classList.remove('in'); };
 

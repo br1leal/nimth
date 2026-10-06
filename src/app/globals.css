@@ -65,7 +65,7 @@ body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); 
 /* escrita do logo: a máscara revela o desenho traço a traço, como uma linha contínua (só no logo grande) */
 .l-tinta{fill:currentColor}
 .l-traco{stroke-dasharray:1 2; stroke-dashoffset:0}
-.logo .l-traco{animation:escrever var(--dur) cubic-bezier(.45,.05,.55,.95) var(--atraso) both, encher .4s ease 1.95s both}
+.logo .l-traco{animation:escrever var(--dur) cubic-bezier(.45,.05,.55,.95) var(--atraso) both, encher .3s ease 1.05s both}
 @keyframes escrever{from{stroke-dashoffset:1.001}}
 @keyframes encher{to{stroke-width:44}}
 #intro.boot .brand{top:50%; translate:0 -50%}

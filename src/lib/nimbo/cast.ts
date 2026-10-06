@@ -25,9 +25,6 @@ export const CAST={
   alegria:{name:'Alegria', line:'Leve, com vontade de sorrir', img:'/chars/alegria.png', ratio:.9172,
     eyes:[[39,46],[61,46]], r:10, face:{lid:0, lidAngle:0, brow:{y:-.6, angle:-8, arch:1.2}, pupil:1, mouth:'soft', grinOnReact:1, cheeks:1},
     limbs:{arm:'none', leg:'step', legAt:[[38,95],[62,95]], tone:'#FFEA85'},
-    /* os braços fazem parte do desenho: recortamos as duas pontas laterais e giramos no ombro */
-    imgArms:{body:'0 0,100% 0,100% 28%,86% 28%,86% 60%,100% 60%,100% 100%,0 100%,0 64%,14% 64%,14% 30%,0 30%',
-      L:{poly:'0 30%,22% 30%,22% 64%,0 64%', pivot:[17,47]}, R:{poly:'78% 28%,100% 28%,100% 60%,78% 60%', pivot:[83,43]}},
     c:{e1:'#FFEBCB',e2:'#FFBE7A',e3:'#B35712'}, speed:1.6, mood:'joy', react:1200},
   calma:{name:'Calma', line:'Respirando no meu ritmo', img:'/chars/calma.png', ratio:.8531,
     eyes:[[37,50],[55,50]], r:8.8, face:{lid:.6, lidAngle:0, brow:{y:-.3, angle:-4, arch:.8}, pupil:.95, mouth:'soft', cheeks:.6},
