@@ -4,10 +4,10 @@
   --bg:#FAF8F4; --card:rgba(255,255,255,.78); --card-line:rgba(255,255,255,.95); --field:#FFFFFF; --line:#E8E3DA;
   --ink:#17151C; --ink-2:#5E5A63; --ink-3:#9A958F; --btn:#16141C; --btn-ink:#fff;
   /* cor do tema: a pessoa escolhe (lib/cores.ts); o resto da marca deriva dela */
-  --marca:#5720EF;
+  --marca:#5E5EFF;
   --brand:color-mix(in oklab, var(--marca) 55%, #fff); --brand-deep:var(--marca);
   --brand-soft:color-mix(in oklab, var(--marca) 16%, #fff); --brand-ink:color-mix(in oklab, var(--marca) 82%, #000);
-  --logo-bolha:color-mix(in oklab, var(--marca) 78%, #fff); --logo-tinta:#1C0637;
+  --logo-bolha:var(--marca); --logo-tinta:#1C0637;
   --e1:#ECE8F4; --e2:#C7BFDD; --e3:#4E4766; --limb:#1E1830; --shadow:rgba(30,24,48,.14);
   --font:var(--font-plex-sans),-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   --display:var(--font-young-serif),"Iowan Old Style",Georgia,serif;

@@ -5,8 +5,8 @@
 export type Cor = { id: string; nome: string; hex: string };
 
 export const CORES: Cor[] = [
-  { id: "nimth", nome: "Roxo nimth", hex: "#5720EF" },
-  { id: "azul", nome: "Azul", hex: "#4F5BFF" },
+  { id: "nimth", nome: "Azul nimth", hex: "#5E5EFF" }, // a cor do balão do logo: é a padrão
+  { id: "roxo", nome: "Roxo", hex: "#5720EF" },
   { id: "calma", nome: "Lavanda", hex: "#8E5CF5" },
   { id: "tristeza", nome: "Céu", hex: "#2F7BEA" },
   { id: "ansiedade", nome: "Verde-água", hex: "#0E9F8F" },
@@ -16,7 +16,8 @@ export const CORES: Cor[] = [
 
 export const CHAVE_COR = "nimth-cor";
 export const COR_PADRAO = CORES[0].hex;
-const valida = (v: string | null) => (v && /^#[0-9a-f]{6}$/i.test(v) ? v : null);
+const ANTIGAS = ["#4f5bff"]; // cores que saíram da paleta voltam para a padrão
+const valida = (v: string | null) => (v && /^#[0-9a-f]{6}$/i.test(v) && !ANTIGAS.includes(v.toLowerCase()) ? v : null);
 
 export function corSalva(): string {
   try { return valida(localStorage.getItem(CHAVE_COR)) ?? COR_PADRAO; } catch { return COR_PADRAO; }
