@@ -19,7 +19,7 @@
   --field-border-width: 1px;
 
   /* Marca */
-  --accent: #6A3DF5;
+  --accent: var(--marca);
   --accent-foreground: #FFFFFF;
   --focus: var(--brand);
 
@@ -69,7 +69,7 @@
 /* Escuro: segue a escolha salva (data-theme) ou o sistema */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --accent: #A67AFF; --accent-foreground: #16141C;
+    --accent: color-mix(in oklab, var(--marca) 62%, #fff); --accent-foreground: #16141C;
     --surface: #1C1A23; --surface-secondary: #23212B; --surface-tertiary: #2A2733;
     --overlay: #201E28; --default: #2A2733; --segment: #34303F;
     --danger: #FF8A75; --danger-foreground: #16141C; --success-foreground: #16141C;
@@ -80,7 +80,7 @@
   }
 }
 :root[data-theme="dark"] {
-  --accent: #A67AFF; --accent-foreground: #16141C;
+  --accent: color-mix(in oklab, var(--marca) 62%, #fff); --accent-foreground: #16141C;
   --surface: #1C1A23; --surface-secondary: #23212B; --surface-tertiary: #2A2733;
   --overlay: #201E28; --default: #2A2733; --segment: #34303F;
   --danger: #FF8A75; --danger-foreground: #16141C; --success-foreground: #16141C;
@@ -112,11 +112,11 @@ html.ds body { background: var(--background); color: var(--foreground); }
 }
 .ficha-topo .emo-nome { color: var(--fe3, var(--muted)); }
 
-/* Cartão do link: vidro lilás e azul, como os botões principais */
+/* Cartão do link: vidro na cor do tema, como os botões principais */
 .link-ficha {
   background:
-    radial-gradient(90% 160% at 0% 0%, color-mix(in oklab, #AB9FF2 26%, transparent), transparent 60%),
-    radial-gradient(90% 160% at 100% 100%, color-mix(in oklab, #7FA8FF 22%, transparent), transparent 60%),
+    radial-gradient(90% 160% at 0% 0%, color-mix(in oklab, var(--vd-1) 26%, transparent), transparent 60%),
+    radial-gradient(90% 160% at 100% 100%, color-mix(in oklab, var(--vd-2) 22%, transparent), transparent 60%),
     var(--surface);
 }
 
@@ -124,7 +124,7 @@ html.ds body { background: var(--background); color: var(--foreground); }
 .auth-fundo {
   background:
     radial-gradient(60% 50% at 15% 10%, color-mix(in oklab, var(--brand) 14%, transparent), transparent 70%),
-    radial-gradient(50% 45% at 90% 90%, color-mix(in oklab, #7FA8FF 16%, transparent), transparent 70%),
+    radial-gradient(50% 45% at 90% 90%, color-mix(in oklab, var(--vd-2) 16%, transparent), transparent 70%),
     var(--background);
 }
 

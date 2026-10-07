@@ -6,6 +6,7 @@ import { Avatar, Button, Dropdown, Label, Spinner, Toast } from "@heroui/react";
 import Logo from "@/components/Logo";
 import Icon, { type IconName } from "@/components/Icon";
 import TemaSwitch from "@/components/ui/TemaSwitch";
+import CorTema from "@/components/ui/CorTema";
 import { supabase } from "@/lib/supabase";
 import type { Psicologo } from "./usePsicologo";
 
@@ -57,13 +58,13 @@ export default function Shell({ children, psi }: { children: ReactNode; psi?: Ps
 
       {/* menu lateral (computador) */}
       <aside className="no-print sticky top-0 hidden h-dvh flex-col gap-8 border-r border-separator px-4 py-6 md:flex">
-        <Link href="/painel" aria-label="Início do painel" className="px-3 text-foreground"><Logo className="h-8 w-auto" /></Link>
+        <Link href="/painel" aria-label="Início do painel" className="px-3 text-foreground"><Logo className="h-12 w-auto" /></Link>
         <nav className="grid gap-1" aria-label="Menu">
           <ItemMenu href="/painel" icon="users" ativo={path.startsWith("/painel")}>Pacientes</ItemMenu>
           <ItemMenu href={fichaLink} icon="external" externo>Ver minha ficha</ItemMenu>
         </nav>
         <div className="mt-auto grid min-w-0 gap-4">
-          <TemaSwitch className="justify-self-start" />
+          <div className="flex items-center gap-2"><TemaSwitch /><CorTema /></div>
           <div className="flex min-w-0 items-center gap-3 overflow-hidden rounded-3xl bg-surface p-3 shadow-surface">
             <Avatar size="sm" color="accent" variant="soft"><Avatar.Fallback>{iniciais(psi?.nome)}</Avatar.Fallback></Avatar>
             <div className="min-w-0 flex-1 leading-tight">
@@ -78,10 +79,11 @@ export default function Shell({ children, psi }: { children: ReactNode; psi?: Ps
       <div className="min-w-0">
         {/* barra do topo (celular) */}
         <header className="no-print sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-separator bg-background/80 px-5 backdrop-blur-xl md:hidden">
-          <Link href="/painel" aria-label="Início do painel" className="text-foreground"><Logo className="h-7 w-auto" /></Link>
+          <Link href="/painel" aria-label="Início do painel" className="text-foreground"><Logo className="h-10 w-auto" /></Link>
           <div className="flex items-center gap-2">
             {primeiro && <span className="text-sm text-muted max-[360px]:hidden">{primeiro}</span>}
             <TemaSwitch />
+            <CorTema acima={false} />
             {conta}
           </div>
         </header>

@@ -72,6 +72,18 @@ const onTouch=e=>{ const t=e.touches[0]; if(t) onPt(t.clientX,t.clientY); };
 window.addEventListener('pointermove', onMove, {passive:true});
 window.addEventListener('touchstart', onTouch, {passive:true});
 
+/* giroscópio: inclinar o celular faz os personagens olharem e se moverem para o lado da inclinação */
+let tilt={x:0,y:0}, tiltAt=-1e9, tiltBase=null;
+const onTilt=e=>{
+  if(e.gamma==null||e.beta==null) return;
+  if(!tiltBase) tiltBase={b:e.beta, g:e.gamma};                       // como a pessoa segura o celular vira o centro
+  tiltBase.b+=(e.beta-tiltBase.b)*.004; tiltBase.g+=(e.gamma-tiltBase.g)*.004;
+  tilt={x:Math.max(-1,Math.min(1,(e.gamma-tiltBase.g)/20)), y:Math.max(-1,Math.min(1,(e.beta-tiltBase.b)/20))}; tiltAt=performance.now();
+};
+const DOE=window.DeviceOrientationEvent;
+const ligaTilt=()=>{ if(!DOE) return; if(typeof DOE.requestPermission==='function') DOE.requestPermission().then(r=>{ if(r==='granted') window.addEventListener('deviceorientation', onTilt); }).catch(()=>{}); else window.addEventListener('deviceorientation', onTilt); };
+if(DOE&&typeof DOE.requestPermission==='function') window.addEventListener('pointerup', ligaTilt, {once:true}); else ligaTilt();
+
 const ease=x=>x<0?0:x>1?1:x*x*(3-2*x);
 const outBack=x=>{ const k=1.9, u=x-1; return 1+(k+1)*u*u*u+k*u*u; };
 const BYE_MS=2000; // duração do tchau
@@ -86,7 +98,9 @@ function frame(now){
     const rect=c.el.getBoundingClientRect(); if(rect.width===0) continue;
     const ccx=rect.left+rect.width/2, ccy=rect.top+rect.height/2;
     let tx=(ptr.x-ccx)/Math.max(240,rect.width*1.6), ty=(ptr.y-ccy)/Math.max(240,rect.height*1.6);
-    if(idle){ tx=Math.sin(t*.35+c.seed)*.45; ty=Math.sin(t*.27+c.seed)*.22; }
+    const inclinando=now-tiltAt<1000&&now-lastMove>1200;
+    if(inclinando){ tx=tilt.x*.9; ty=tilt.y*.6; }
+    else if(idle){ tx=Math.sin(t*.35+c.seed)*.45; ty=Math.sin(t*.27+c.seed)*.22; }
     const mm=Math.hypot(tx,ty); if(mm>1){ tx/=mm; ty/=mm; }
     if(c.d.face.lookDown) ty=Math.max(ty,.25);
     c.look.x+=(tx-c.look.x)*.1; c.look.y+=(ty-c.look.y)*.1;
@@ -372,7 +386,7 @@ form.addEventListener('scroll', onFormScroll, {passive:true});
 function start(){ intro.classList.add('out'); form.classList.add('in'); form.scrollTop=0; }
 $('startBtn').onclick=start;
 /* abertura: depois que o logo se monta no centro, ele sobe e o resto da tela aparece */
-const bootT=setTimeout(()=>{ intro.classList.remove('boot'); }, reduce?0:1500);
+const bootT=setTimeout(()=>{ intro.classList.remove('boot'); }, reduce?0:3300); // espera a abertura do logo (Logo.tsx) terminar
 intro.onpointerdown=e=>{ if(intro.classList.contains('out')||intro.classList.contains('boot')||e.target.closest('button')) return; spawn(e.clientX, e.clientY); };
 $('back').onclick=()=>{ intro.classList.remove('out'); form.classList.remove('in'); };
 
@@ -395,6 +409,7 @@ return ()=>{
   form.removeEventListener('scroll', onFormScroll); hero.removeEventListener('pointerdown', swDown, true); hero.removeEventListener('pointerup', swUp, true);
   window.removeEventListener('pointermove', onMove);
   window.removeEventListener('touchstart', onTouch);
+  window.removeEventListener('deviceorientation', onTilt); window.removeEventListener('pointerup', ligaTilt);
   ['stage','heroSlot','chips','bubbles'].forEach(id=>{ const n=$(id); if(n) n.innerHTML=''; });
 };
 

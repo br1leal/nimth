@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { initNimbo } from "@/lib/nimbo/engine";
 import Logo from "@/components/Logo";
+import CorTema from "@/components/ui/CorTema";
 import Icon from "@/components/Icon";
 import FichaForm from "@/components/FichaForm";
 
@@ -38,10 +39,12 @@ export default function PatientForm({ slug }: { slug?: string }) {
         <Icon name="moon" className="icon-sm t-moon" />
       </button>
 
+      <CorTema className="fixa" />
+
       <section className="screen boot" id="intro" aria-label="Boas-vindas">
         <div id="stage" aria-hidden="true" />
         <header className="brand">
-          <Logo />
+          <Logo abertura interativo />
         </header>
         <div className="copy">
           <h1>Que bom ter você aqui.</h1>

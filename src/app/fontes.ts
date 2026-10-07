@@ -12,5 +12,5 @@ export const fontes = `${youngSerif.variable} ${plexSans.variable} ${plexMono.va
 /** Barra do navegador no tom claro (o claro é o tema padrão). */
 export const themeColor = "#FAF8F4";
 
-/** Claro é o padrão; escuro só se a pessoa escolheu. Roda antes da página aparecer (evita piscar). */
-export const scriptTema = `try{if(localStorage.getItem('nimbo-theme')==='escuro')document.documentElement.setAttribute('data-theme','dark');}catch(e){}`;
+/** Claro é o padrão; escuro só se a pessoa escolheu. Aplica também a cor do tema salva. Roda antes da página aparecer (evita piscar). */
+export const scriptTema = `try{var h=document.documentElement;if(localStorage.getItem('nimbo-theme')==='escuro')h.setAttribute('data-theme','dark');var c=localStorage.getItem('nimth-cor');if(/^#[0-9a-f]{6}$/i.test(c||''))h.style.setProperty('--marca',c);}catch(e){}`;
