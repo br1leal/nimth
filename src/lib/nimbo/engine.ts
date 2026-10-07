@@ -73,12 +73,12 @@ window.addEventListener('pointermove', onMove, {passive:true});
 window.addEventListener('touchstart', onTouch, {passive:true});
 
 /* giroscópio: inclinar o celular faz os personagens olharem e se moverem para o lado da inclinação */
-let tilt={x:0,y:0}, tiltAt=-1e9, tiltBase=null;
+let incl={x:0,y:0}, tiltAt=-1e9, tiltBase=null; // "incl": não confundir com o tilt de cada personagem no frame
 const onTilt=e=>{
   if(e.gamma==null||e.beta==null) return;
   if(!tiltBase) tiltBase={b:e.beta, g:e.gamma};                       // como a pessoa segura o celular vira o centro
   tiltBase.b+=(e.beta-tiltBase.b)*.004; tiltBase.g+=(e.gamma-tiltBase.g)*.004;
-  tilt={x:Math.max(-1,Math.min(1,(e.gamma-tiltBase.g)/20)), y:Math.max(-1,Math.min(1,(e.beta-tiltBase.b)/20))}; tiltAt=performance.now();
+  incl={x:Math.max(-1,Math.min(1,(e.gamma-tiltBase.g)/20)), y:Math.max(-1,Math.min(1,(e.beta-tiltBase.b)/20))}; tiltAt=performance.now();
 };
 const DOE=window.DeviceOrientationEvent;
 const ligaTilt=()=>{ if(!DOE) return; if(typeof DOE.requestPermission==='function') DOE.requestPermission().then(r=>{ if(r==='granted') window.addEventListener('deviceorientation', onTilt); }).catch(()=>{}); else window.addEventListener('deviceorientation', onTilt); };
@@ -99,7 +99,7 @@ function frame(now){
     const ccx=rect.left+rect.width/2, ccy=rect.top+rect.height/2;
     let tx=(ptr.x-ccx)/Math.max(240,rect.width*1.6), ty=(ptr.y-ccy)/Math.max(240,rect.height*1.6);
     const inclinando=now-tiltAt<1000&&now-lastMove>1200;
-    if(inclinando){ tx=tilt.x*.9; ty=tilt.y*.6; }
+    if(inclinando){ tx=incl.x*.9; ty=incl.y*.6; }
     else if(idle){ tx=Math.sin(t*.35+c.seed)*.45; ty=Math.sin(t*.27+c.seed)*.22; }
     const mm=Math.hypot(tx,ty); if(mm>1){ tx/=mm; ty/=mm; }
     if(c.d.face.lookDown) ty=Math.max(ty,.25);

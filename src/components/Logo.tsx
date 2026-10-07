@@ -7,7 +7,7 @@
  * abertura: um fio embaraçado nasce no centro, abre numa volta e entra no "n"; a ponta de trás vai se fechando.
  *   Uma "caneta" segue o traço de cada letra e escreve a palavra; o pingo do i nasce com a letra;
  *   por último o balão entra de estalo e a palavra reage com mola. (~3,2 s)
- * interativo: parallax em camadas (balão atrás, palavra na frente) com o mouse, o dedo e a inclinação do celular.
+ * interativo (padrão): parallax em camadas (balão atrás, palavra na frente) com o mouse, o dedo e a inclinação do celular.
  */
 import { useEffect, useId, useRef } from "react";
 
@@ -57,7 +57,7 @@ const faixa = (t: number, a: number, b: number) => Math.min(1, Math.max(0, (t - 
 const D = { cabeca: [0, 1250], cauda: [470, 1430], escrita: [1200, 2450], bolha: [2480, 2800], reacao: [2510, 3150] } as const;
 export const DURACAO_ABERTURA = 3200;
 
-export default function Logo({ className = "logo", abertura = false, interativo = false }: { className?: string; abertura?: boolean; interativo?: boolean }) {
+export default function Logo({ className = "logo", abertura = false, interativo = true }: { className?: string; abertura?: boolean; interativo?: boolean }) {
   const uid = "lg" + useId().replace(/[^a-zA-Z0-9]/g, "");
   const svg = useRef<SVGSVGElement>(null);
 

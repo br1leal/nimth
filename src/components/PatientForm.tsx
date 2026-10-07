@@ -44,7 +44,7 @@ export default function PatientForm({ slug }: { slug?: string }) {
       <section className="screen boot" id="intro" aria-label="Boas-vindas">
         <div id="stage" aria-hidden="true" />
         <header className="brand">
-          <Logo abertura interativo />
+          <Logo abertura />
         </header>
         <div className="copy">
           <h1>Que bom ter você aqui.</h1>
