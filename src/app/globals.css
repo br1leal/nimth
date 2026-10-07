@@ -5,7 +5,7 @@
   --ink:#17151C; --ink-2:#5E5A63; --ink-3:#9A958F; --btn:#16141C; --btn-ink:#fff;
   --brand:#A67AFF; --brand-deep:#5500FF; --brand-soft:#E4D9FD; --brand-ink:#4A1FD1;
   --e1:#ECE8F4; --e2:#C7BFDD; --e3:#4E4766; --limb:#1E1830; --shadow:rgba(30,24,48,.14);
-  --font:var(--font-switzer),-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --font:var(--font-plex-sans),-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   --display:var(--font-young-serif),"Iowan Old Style",Georgia,serif;
   --mono:var(--font-plex-mono),ui-monospace,Menlo,monospace;
   --hand:var(--font-caveat),"Segoe Print","Bradley Hand",cursive;
@@ -64,13 +64,12 @@ body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); 
 /* abertura: o logo aparece sozinho no centro, letra por letra, e depois sobe para o topo; o resto entra em seguida */
 /* escrita do logo: uma linha contínua contorna as letras (como uma assinatura) e o preenchimento aparece logo depois.
    Só no logo grande da tela inicial; nos outros lugares o contorno fica escondido. */
-.l-tinta{fill:currentColor}
-.l-contorno{opacity:0}
-.logo .l-contorno{stroke-dasharray:1 1; animation:assinar .5s cubic-bezier(.5,.1,.4,1) calc(.05s + var(--i) * .13s) both, sumir .3s ease calc(.5s + var(--i) * .13s) forwards}
-.logo .l-tinta{transform-box:fill-box; transform-origin:50% 60%; animation:preencher .35s ease calc(.3s + var(--i) * .13s) both}
-@keyframes assinar{from{stroke-dashoffset:1; opacity:1} to{stroke-dashoffset:0; opacity:1}}
-@keyframes sumir{from{opacity:1} to{opacity:0}}
-@keyframes preencher{from{opacity:0; transform:scale(.985)}}
+/* abertura: a palavra é escrita da esquerda para a direita e o pingo do i cai por último */
+.l-escrita{transform:none}
+.logo .l-escrita{animation:escrever 1.05s cubic-bezier(.45,.05,.35,1) .05s both}
+.logo .l-pingo{transform-box:fill-box; transform-origin:50% 100%; animation:pingar .45s cubic-bezier(.34,1.6,.64,1) 1s both}
+@keyframes escrever{from{transform:translateX(-362px)} to{transform:translateX(0)}}
+@keyframes pingar{0%{opacity:0; transform:translateY(-60%) scale(.6)} 60%{opacity:1} 100%{opacity:1; transform:none}}
 #intro.boot .brand{top:50%; translate:0 -50%}
 #intro.boot .logo{width:min(62cqw, 290px)}
 #intro .copy > *, #intro .tap-hint{transition:opacity .6s ease, translate .7s cubic-bezier(.2,.8,.2,1)}
@@ -152,7 +151,7 @@ html.ds .button--primary::before, html.ds .button--primary::after{
 .inner{max-width:520px; margin:0 auto; padding-inline:20px; padding-block:calc(22px + env(safe-area-inset-top,0px)) 56px; display:grid; gap:24px}
 .back-logo{border:0; background:none; padding:6px 4px; margin:-6px -4px; cursor:pointer; color:var(--ink); display:flex}
 .logo-sm{width:66px; height:auto; display:block}
-.logo-sm .l-contorno, .logo-sm .l-tinta{animation:none}
+.logo-sm .l-escrita, .logo-sm .l-pingo{animation:none}
 .top{display:flex; justify-content:space-between; align-items:center}
 .back{display:inline-flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--card-line); border-radius:var(--r-pill); height:40px; padding:0 16px 0 12px; font-size:13px; cursor:pointer}
 .pill{font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; padding:9px 14px; border-radius:999px; background:var(--brand-soft); color:var(--brand-ink)}
@@ -344,4 +343,4 @@ html.ds .button--primary::before, html.ds .button--primary::after{
 @keyframes surgir{from{opacity:0; transform:translateY(12px)}to{opacity:1; transform:none}}
 .btn:disabled{opacity:.7; cursor:progress}
 .icon.spin{animation:spin .8s linear infinite}
-@media (prefers-reduced-motion: reduce){ .logo .l-contorno{animation:none; opacity:0} .logo .l-tinta{animation:none} }
+@media (prefers-reduced-motion: reduce){ .logo .l-escrita, .logo .l-pingo{animation:none} }
